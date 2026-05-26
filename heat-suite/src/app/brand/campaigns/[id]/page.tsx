@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar } from "@/components/ui";
 import { CampaignPipeline } from "@/components/CampaignPipeline";
+import { CampaignPlannerCard } from "@/components/CampaignPlannerCard";
 import {
   applicationsForCampaign,
   campaigns,
@@ -145,25 +146,7 @@ export default async function CampaignDetail({
           </div>
         </Link>
 
-        <div className="flex items-center justify-between rounded-[14px] bg-sidebar p-5 text-white">
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-white/10 text-xl">
-              💻
-            </div>
-            <div>
-              <p className="flex items-center gap-2 font-bold">
-                Campaign planner
-                <span className="rounded-md bg-success px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  NUEVO
-                </span>
-              </p>
-              <p className="text-sm text-white/70">
-                Mezcla óptima de creadores según presupuesto y objetivo.
-              </p>
-            </div>
-          </div>
-          <span className="text-white/60">›</span>
-        </div>
+        <CampaignPlannerCard />
       </div>
 
       {/* Stats */}

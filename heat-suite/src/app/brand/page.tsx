@@ -1,4 +1,9 @@
-import { Button } from "@/components/ui";
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { MontuCampaignCard } from "@/components/MontuCampaignCard";
+import { campaigns } from "@/lib/data";
 
 const integrations = [
   {
@@ -7,6 +12,7 @@ const integrations = [
     bg: "linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)",
     desc: "Conecta Instagram para visualizar las métricas de tu contenido orgánico.",
     cta: "Conectar Instagram",
+    ecommerce: false,
   },
   {
     name: "TikTok",
@@ -14,6 +20,7 @@ const integrations = [
     bg: "#000000",
     desc: "Conecta TikTok para visualizar las métricas de tu contenido orgánico.",
     cta: "Conectar TikTok",
+    ecommerce: false,
   },
   {
     name: "Ecommerce",
@@ -21,45 +28,101 @@ const integrations = [
     bg: "linear-gradient(135deg,#34D399,#10B981)",
     desc: "Conecta Shopify o WooCommerce para sincronizar tu catálogo y crear campañas más rápido. También podrás activar afiliados.",
     cta: "Conectar ecommerce",
+    ecommerce: true,
   },
 ];
 
+const tasks = [
+  { icon: "🎬", title: "Contenido por aprobar", sub: "Piezas listas para revisión", count: 3 },
+  { icon: "📦", title: "ODTs por finalizar", sub: "Creadores listos para cerrar", count: 1 },
+  { icon: "🎁", title: "Productos por enviar", sub: "Canjes pendientes de despacho", count: 2 },
+  { icon: "✉️", title: "Mensajes sin leer", sub: "Conversaciones con creadores", count: 2 },
+  { icon: "💸", title: "Comisiones por pagar", sub: "Sin comisiones pendientes por pagar", count: 0 },
+];
+
 export default function BrandDashboard() {
+  const [ecomModal, setEcomModal] = useState(false);
+  const active = campaigns.filter((c) => c.status === "active" || c.status === "review");
+
   return (
     <>
       <h1 className="text-3xl font-extrabold tracking-tight text-ink">
-        ¡Bienvenido a Heat Suite! 👋
+        Hola, Sebastián 👋
       </h1>
       <p className="mt-1.5 text-soft-ink">
-        Empecemos por construir tu primera activación con creadores.
+        Esto es lo que está pasando con tu marca.
       </p>
 
-      {/* Activation hero */}
-      <div className="relative mt-6 overflow-hidden rounded-[20px] border border-accent/15 bg-accent-soft p-8 sm:p-10">
-        <div className="absolute -right-10 top-1/2 hidden h-72 w-72 -translate-y-1/2 items-center justify-center rounded-full bg-[radial-gradient(circle,rgba(37,99,235,0.18),transparent_70%)] sm:flex">
-          <span className="text-[120px] drop-shadow-[0_8px_24px_rgba(37,99,235,0.4)]">
-            ⚡
+      {/* Campañas activas */}
+      <h2 className="mt-7 text-lg font-bold text-ink">Campañas activas</h2>
+      <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {active.slice(0, 2).map((c) => (
+          <MontuCampaignCard key={c.id} campaign={c} />
+        ))}
+        <Link
+          href="/brand/campaigns/new"
+          className="flex min-h-[260px] flex-col items-center justify-center rounded-[16px] border-2 border-dashed border-line-strong bg-soft p-6 text-center transition-colors hover:border-accent hover:bg-accent-soft"
+        >
+          <span className="heat-gradient-blue flex h-14 w-14 items-center justify-center rounded-[14px] text-2xl font-bold text-white shadow-[var(--shadow-accent)]">
+            +
           </span>
-        </div>
-        <div className="relative max-w-xl">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-accent">
-            ⚡ Empezar
-          </span>
-          <h2 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-4xl">
-            Construye campañas con creadores reales.
-          </h2>
-          <p className="mt-3 text-soft-ink">
-            Lanza tu primera activación, descubre creadores que encajan con tu
-            marca y mide los resultados en un solo lugar.
+          <p className="mt-4 font-bold text-ink">Nueva campaña</p>
+          <p className="mt-1 text-sm text-soft-ink">
+            Lanza una nueva activación con creadores.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button href="/brand/campaigns/new">+ Crear primera campaña</Button>
-            <Button variant="secondary">📅 Agendar onboarding call</Button>
+        </Link>
+      </div>
+
+      {/* Tareas + actividad */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <h2 className="mb-3 text-lg font-bold text-ink">Tareas pendientes</h2>
+          <div className="overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)]">
+            <div className="divide-y divide-line">
+              {tasks.map((t) => (
+                <div
+                  key={t.title}
+                  className="flex items-center gap-3 px-5 py-3.5"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-card text-lg">
+                    {t.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-ink">{t.title}</p>
+                    <p className="text-xs text-dim">{t.sub}</p>
+                  </div>
+                  {t.count > 0 ? (
+                    <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-accent px-2 text-xs font-bold text-white">
+                      {t.count}
+                    </span>
+                  ) : (
+                    <span className="text-dim">›</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="mb-3 text-lg font-bold text-ink">Actividad reciente</h2>
+          <div className="rounded-[14px] border border-line bg-surface p-4 shadow-[var(--shadow-soft)]">
+            <div className="flex items-start gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-accent">
+                👥
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-ink">
+                  52 nuevas postulaciones en nuevaisapre.cl
+                </p>
+                <p className="text-xs text-dim">Hoy</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Integrations */}
+      {/* Integraciones */}
       <h2 className="mt-10 text-lg font-bold text-ink">Integraciones</h2>
       <div className="mt-4 grid gap-5 lg:grid-cols-3">
         {integrations.map((it) => (
@@ -86,12 +149,75 @@ export default function BrandDashboard() {
               </span>
             </div>
             <p className="mt-4 min-h-[40px] text-sm text-soft-ink">{it.desc}</p>
-            <Button variant="secondary" full className="mt-4">
+            <button
+              onClick={() => it.ecommerce && setEcomModal(true)}
+              className="mt-4 w-full rounded-[10px] border border-line-strong py-2.5 text-sm font-semibold text-ink hover:border-accent hover:text-accent"
+            >
               {it.cta}
-            </Button>
+            </button>
           </div>
         ))}
       </div>
+
+      {/* Conectar ecommerce modal */}
+      {ecomModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setEcomModal(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-[16px] bg-surface p-6 shadow-[var(--shadow-card)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-lg font-extrabold text-ink">
+                  Conectar ecommerce
+                </h2>
+                <p className="mt-1 text-sm text-soft-ink">
+                  Elige tu plataforma para sincronizar catálogo y pedidos.
+                </p>
+              </div>
+              <button onClick={() => setEcomModal(false)} className="text-soft-ink">
+                ✕
+              </button>
+            </div>
+            <div className="mt-5 space-y-3">
+              {[
+                {
+                  name: "Shopify",
+                  desc: "Sincronización en tiempo real con tu catálogo, pedidos y descuentos.",
+                  glyph: "🛍",
+                  bg: "#5E8E3E",
+                },
+                {
+                  name: "WooCommerce",
+                  desc: "Plugin oficial para WordPress · sincronización vía REST API.",
+                  glyph: "woo",
+                  bg: "#7F54B3",
+                },
+              ].map((p) => (
+                <button
+                  key={p.name}
+                  className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
+                >
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-[10px] text-xs font-bold text-white"
+                    style={{ background: p.bg }}
+                  >
+                    {p.glyph}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-ink">{p.name}</p>
+                    <p className="text-xs text-dim">{p.desc}</p>
+                  </div>
+                  <span className="text-dim">›</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
