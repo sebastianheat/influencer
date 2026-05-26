@@ -41,7 +41,7 @@ const tasks = [
 ];
 
 export default function BrandDashboard() {
-  const [ecomModal, setEcomModal] = useState(false);
+  const [ecomView, setEcomView] = useState<null | "choose" | "woo">(null);
   const active = campaigns.filter((c) => c.status === "active" || c.status === "review");
 
   return (
@@ -150,7 +150,7 @@ export default function BrandDashboard() {
             </div>
             <p className="mt-4 min-h-[40px] text-sm text-soft-ink">{it.desc}</p>
             <button
-              onClick={() => it.ecommerce && setEcomModal(true)}
+              onClick={() => it.ecommerce && setEcomView("choose")}
               className="mt-4 w-full rounded-[10px] border border-line-strong py-2.5 text-sm font-semibold text-ink hover:border-accent hover:text-accent"
             >
               {it.cta}
@@ -160,61 +160,96 @@ export default function BrandDashboard() {
       </div>
 
       {/* Conectar ecommerce modal */}
-      {ecomModal && (
+      {ecomView && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-          onClick={() => setEcomModal(false)}
+          onClick={() => setEcomView(null)}
         >
           <div
             className="w-full max-w-md rounded-[16px] bg-surface p-6 shadow-[var(--shadow-card)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-lg font-extrabold text-ink">
-                  Conectar ecommerce
-                </h2>
-                <p className="mt-1 text-sm text-soft-ink">
-                  Elige tu plataforma para sincronizar catálogo y pedidos.
-                </p>
-              </div>
-              <button onClick={() => setEcomModal(false)} className="text-soft-ink">
-                ✕
-              </button>
-            </div>
-            <div className="mt-5 space-y-3">
-              {[
-                {
-                  name: "Shopify",
-                  desc: "Sincronización en tiempo real con tu catálogo, pedidos y descuentos.",
-                  glyph: "🛍",
-                  bg: "#5E8E3E",
-                },
-                {
-                  name: "WooCommerce",
-                  desc: "Plugin oficial para WordPress · sincronización vía REST API.",
-                  glyph: "woo",
-                  bg: "#7F54B3",
-                },
-              ].map((p) => (
-                <button
-                  key={p.name}
-                  className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
-                >
-                  <span
-                    className="flex h-10 w-10 items-center justify-center rounded-[10px] text-xs font-bold text-white"
-                    style={{ background: p.bg }}
-                  >
-                    {p.glyph}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-ink">{p.name}</p>
-                    <p className="text-xs text-dim">{p.desc}</p>
+            {ecomView === "choose" ? (
+              <>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h2 className="text-lg font-extrabold text-ink">
+                      Conectar ecommerce
+                    </h2>
+                    <p className="mt-1 text-sm text-soft-ink">
+                      Elige tu plataforma para sincronizar catálogo y pedidos.
+                    </p>
                   </div>
-                  <span className="text-dim">›</span>
-                </button>
-              ))}
-            </div>
+                  <button onClick={() => setEcomView(null)} className="text-soft-ink">
+                    ✕
+                  </button>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <a
+                    href="https://apps.shopify.com/montu"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#5E8E3E] text-xs font-bold text-white">
+                      🛍
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-ink">Shopify</p>
+                      <p className="text-xs text-dim">
+                        Sincronización en tiempo real con tu catálogo, pedidos y
+                        descuentos.
+                      </p>
+                    </div>
+                    <span className="text-dim">›</span>
+                  </a>
+                  <button
+                    onClick={() => setEcomView("woo")}
+                    className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#7F54B3] text-xs font-bold text-white">
+                      woo
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-ink">WooCommerce</p>
+                      <p className="text-xs text-dim">
+                        Plugin oficial para WordPress · sincronización vía REST API.
+                      </p>
+                    </div>
+                    <span className="text-dim">›</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start justify-between">
+                  <h2 className="text-lg font-extrabold text-ink">
+                    Conectar tienda de WooCommerce
+                  </h2>
+                  <button onClick={() => setEcomView(null)} className="text-soft-ink">
+                    ✕
+                  </button>
+                </div>
+                <p className="mb-1.5 mt-4 text-[13px] font-semibold text-ink">
+                  URL de la tienda*
+                </p>
+                <input
+                  placeholder="Ej: https://tutienda.cl"
+                  className="h-11 w-full rounded-[10px] border border-line bg-surface px-3.5 text-sm text-ink placeholder:text-dim focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                />
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    onClick={() => setEcomView("choose")}
+                    className="rounded-[10px] border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent-soft"
+                  >
+                    Cancelar
+                  </button>
+                  <button className="heat-gradient-blue rounded-[10px] px-4 py-2 text-sm font-semibold text-white">
+                    Conectar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
