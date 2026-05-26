@@ -145,6 +145,19 @@ export async function currentBrandId(): Promise<string | null> {
   return brand?.id ?? null;
 }
 
+export async function getCurrentBrandShopify(): Promise<{
+  shop: string;
+  accessToken: string;
+} | null> {
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  const conn = await prisma.connection.findFirst({
+    where: { userId: session.user.id, provider: "shopify" },
+  });
+  if (!conn?.shop || !conn.accessToken) return null;
+  return { shop: conn.shop, accessToken: conn.accessToken };
+}
+
 export async function getConnectedProviders(): Promise<Set<string>> {
   const session = await auth();
   if (!session?.user?.id) return new Set();
