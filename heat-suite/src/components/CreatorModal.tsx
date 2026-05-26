@@ -167,12 +167,15 @@ export function CreatorModal({
                     </span>
                   </div>
                   <div className="mt-4 space-y-4">
-                    <AudienceBar label="Masculino" pct={creator.audience.male} />
-                    <AudienceBar label="Femenino" pct={creator.audience.female} />
-                    <AudienceBar
-                      label="No especificado"
-                      pct={creator.audience.other}
-                    />
+                    {[
+                      { label: "Masculino", pct: creator.audience.male },
+                      { label: "Femenino", pct: creator.audience.female },
+                      { label: "No especificado", pct: creator.audience.other },
+                    ]
+                      .sort((a, b) => b.pct - a.pct)
+                      .map((a) => (
+                        <AudienceBar key={a.label} label={a.label} pct={a.pct} />
+                      ))}
                   </div>
                 </div>
 
@@ -266,16 +269,21 @@ export function CreatorModal({
               <p className="mt-3 text-lg font-extrabold text-ink">
                 {creator.name}
               </p>
-              {creator.reviewScore ? (
-                <p className="text-sm font-semibold text-warning">
-                  {creator.reviewScore} de 5 ★
-                </p>
-              ) : (
-                <p className="text-sm text-dim">Sin reviews</p>
-              )}
-              <p className="mt-3 text-left text-sm leading-relaxed text-muted">
+              <div className="mt-1">
+                {creator.reviewScore ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-warning-bg px-2.5 py-1 text-xs font-bold text-ink">
+                    {creator.reviewScore} de 5 ☆
+                  </span>
+                ) : (
+                  <span className="text-xs text-dim">Sin reviews</span>
+                )}
+              </div>
+              <p className="mt-3 text-left text-sm leading-relaxed text-muted line-clamp-3">
                 {creator.bio}
               </p>
+              <button className="mt-1 block text-left text-sm font-semibold text-accent hover:underline">
+                Ver más
+              </button>
               <div className="mt-4 space-y-2">
                 {creator.igFollowers !== null && (
                   <div className="flex items-center justify-between rounded-[10px] bg-soft px-3 py-2 text-sm">

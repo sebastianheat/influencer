@@ -1,70 +1,139 @@
-import { Avatar, Card, PageHeader, StatCard } from "@/components/ui";
-import { getInfluencer } from "@/lib/data";
-import { money } from "@/lib/format";
+"use client";
 
-const rows = [
-  { inf: "inf-1", code: "THAMY10", clicks: 12840, sales: 312, commission: 2496 },
-  { inf: "inf-3", code: "PAOLO15", clicks: 9870, sales: 198, commission: 1782 },
-  { inf: "inf-8", code: "MARIUXI", clicks: 5410, sales: 143, commission: 1144 },
-  { inf: "inf-7", code: "NATV", clicks: 3290, sales: 88, commission: 704 },
-];
+import Link from "next/link";
+import { useState } from "react";
+import { cn } from "@/lib/cn";
+
+function Accordion({ title }: { title: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-t border-line">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between py-3.5 text-left text-sm font-bold text-ink"
+      >
+        {title}
+        <span className="text-dim">{open ? "▴" : "▾"}</span>
+      </button>
+      {open && (
+        <p className="pb-3.5 text-sm text-soft-ink">
+          Configura los detalles de {title.toLowerCase()} para tu programa de
+          afiliados.
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function Affiliates() {
-  const totalSales = rows.reduce((s, r) => s + r.sales, 0);
-  const totalComm = rows.reduce((s, r) => s + r.commission, 0);
+  const [provider, setProvider] = useState<"shopify" | "woo" | null>(null);
 
   return (
     <>
-      <PageHeader
-        title="Afiliados"
-        subtitle="Códigos y enlaces de afiliación de tus creadores."
-      />
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Afiliados activos" value={String(rows.length)} icon="🛡️" />
-        <StatCard label="Ventas atribuidas" value={String(totalSales)} icon="🛒" />
-        <StatCard label="Comisiones" value={money(totalComm)} icon="💸" />
-      </div>
+      <Link
+        href="/brand"
+        className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-soft-ink hover:text-ink"
+      >
+        ‹ Volver al inicio
+      </Link>
 
-      <Card padded={false} className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr className="border-b border-line bg-soft text-left text-xs uppercase tracking-wide text-dim">
-              <th className="px-5 py-3 font-semibold">Creador</th>
-              <th className="px-5 py-3 font-semibold">Código</th>
-              <th className="px-5 py-3 font-semibold">Clics</th>
-              <th className="px-5 py-3 font-semibold">Ventas</th>
-              <th className="px-5 py-3 font-semibold">Comisión</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {rows.map((r) => {
-              const inf = getInfluencer(r.inf);
-              return (
-                <tr key={r.code} className="hover:bg-soft">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      {inf && <Avatar name={inf.name} size={34} />}
-                      <span className="font-semibold text-ink">{inf?.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="rounded-md bg-card px-2 py-1 font-mono text-xs font-bold text-ink">
-                      {r.code}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-soft-ink">
-                    {r.clicks.toLocaleString("es-ES")}
-                  </td>
-                  <td className="px-5 py-3 font-semibold text-ink">{r.sales}</td>
-                  <td className="px-5 py-3 font-extrabold text-success">
-                    {money(r.commission)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        {/* Wizard */}
+        <div className="space-y-5">
+          <div className="rounded-[14px] border border-line bg-surface p-5 shadow-[var(--shadow-soft)]">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-dim">1 de 5</p>
+                <h1 className="mt-0.5 text-xl font-extrabold text-ink">
+                  Conecta tu tienda
+                </h1>
+              </div>
+              <button
+                disabled={!provider}
+                className={cn(
+                  "rounded-[10px] px-4 py-2 text-sm font-semibold transition-colors",
+                  provider
+                    ? "heat-gradient-blue text-white"
+                    : "cursor-not-allowed bg-card text-dim",
+                )}
+              >
+                Siguiente
+              </button>
+            </div>
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-card">
+              <div className="heat-gradient-blue h-full w-1/5 rounded-full" />
+            </div>
+          </div>
+
+          <div className="rounded-[14px] border border-line bg-surface p-6 shadow-[var(--shadow-soft)]">
+            <h2 className="font-bold text-ink">
+              Selecciona tu proveedor de ecommerce
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setProvider("shopify")}
+                className={cn(
+                  "flex h-24 items-center justify-center rounded-[12px] border-2 bg-surface transition-all",
+                  provider === "shopify"
+                    ? "border-accent ring-2 ring-accent/15"
+                    : "border-line hover:border-line-strong",
+                )}
+              >
+                <span className="text-xl font-extrabold text-[#5E8E3E]">
+                  🛍 shopify
+                </span>
+              </button>
+              <button
+                onClick={() => setProvider("woo")}
+                className={cn(
+                  "flex h-24 items-center justify-center rounded-[12px] border-2 bg-surface transition-all",
+                  provider === "woo"
+                    ? "border-accent ring-2 ring-accent/15"
+                    : "border-line hover:border-line-strong",
+                )}
+              >
+                <span className="rounded-md bg-[#7F54B3] px-3 py-1.5 text-lg font-extrabold text-white">
+                  woo
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Preview */}
+        <div className="rounded-[16px] border border-line bg-soft p-5">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-success">
+            Previsualización ⓘ
+          </span>
+
+          <div className="mt-4 rounded-[14px] border border-line bg-surface p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-accent-soft text-xl">
+                🩺
+              </div>
+              <div>
+                <p className="text-sm font-bold text-ink">
+                  Nueva Isapre — Cotiza tu plan de salud en 30 segundos
+                </p>
+                <p className="mt-0.5 text-xs text-dim">
+                  Compara 1.782 planes de las 7 isapres del mercado. Sin alza…
+                </p>
+              </div>
+            </div>
+            <p className="mt-4 text-lg font-extrabold text-dim">
+              Título del programa
+            </p>
+            <p className="mt-2 text-sm text-soft-ink">Fecha de inicio</p>
+            <p className="text-sm text-soft-ink">Sin fecha de término</p>
+          </div>
+
+          <div className="mt-4 rounded-[14px] border border-line bg-surface px-4">
+            <Accordion title="Promoción" />
+            <Accordion title="Regalo de bienvenida" />
+            <Accordion title="Pagos y descuentos" />
+          </div>
+        </div>
+      </div>
     </>
   );
 }
