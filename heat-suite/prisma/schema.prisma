@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BRAND
+  CREATOR
+  ADMIN
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  REVIEW
+  COMPLETED
+}
+
+enum ApplicationStatus {
+  PENDING
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String?
+  name         String
+  role         Role            @default(BRAND)
+  createdAt    DateTime        @default(now())
+  brand        Brand?
+  creator      CreatorProfile?
+}
+
+model Brand {
+  id          String     @id @default(cuid())
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  website     String?
+  description String?
+  logo        String?    @default("🩺")
+  campaigns   Campaign[]
+  createdAt   DateTime   @default(now())
+}
+
+model CreatorProfile {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handle       String        @unique
+  bio          String        @default("")
+  location     String        @default("")
+  region       String?
+  comuna       String?
+  age          Int?
+  niche        String[]
+  platforms    String[]
+  followers    Int           @default(0)
+  igFollowers  Int?
+  ttFollowers  Int?
+  engagement   Float         @default(0)
+  reach        Int           @default(0)
+  rating       Float         @default(0)
+  reviewScore  Float?
+  priceFrom    Int           @default(0)
+  verified     Boolean       @default(false)
+  completedCampaigns Int     @default(0)
+  audienceMale   Int         @default(0)
+  audienceFemale Int         @default(0)
+  audienceOther  Int         @default(0)
+  applications Application[]
+  createdAt    DateTime      @default(now())
+}
+
+model Campaign {
+  id           String         @id @default(cuid())
+  brandId      String
+  brand        Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  title        String
+  status       CampaignStatus @default(DRAFT)
+  niche        String
+  tag          String         @default("Orgánico")
+  collabTypes  String[]
+  platforms    String[]
+  budget       Int            @default(0)
+  payPerCreator Int           @default(0)
+  spots        Int            @default(0)
+  filled       Int            @default(0)
+  deadline     DateTime
+  cover        String         @default("heat-gradient-soft")
+  brief        String         @default("")
+  deliverables String[]
+  requirements String[]
+  minFollowers Int            @default(0)
+  applications Application[]
+  createdAt    DateTime       @default(now())
+}
+
+model Application {
+  id           String            @id @default(cuid())
+  campaignId   String
+  campaign     Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creatorId    String
+  creator      CreatorProfile    @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  status       ApplicationStatus @default(PENDING)
+  message      String            @default("")
+  proposedRate Int               @default(0)
+  appliedAt    DateTime          @default(now())
+
+  @@unique([campaignId, creatorId])
+}

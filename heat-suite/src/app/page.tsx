@@ -99,7 +99,7 @@ export default function Landing() {
           </span>
           <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl">
             Conecta tu marca con los{" "}
-            <span className="bg-gradient-to-r from-white to-sky bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white to-[#D6E6FF] bg-clip-text text-transparent">
               creadores correctos
             </span>
           </h1>
@@ -109,18 +109,18 @@ export default function Landing() {
             desde un solo lugar.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button
+            <Link
               href="/register?role=brand"
-              className="bg-white !text-ink shadow-lg hover:bg-white/90"
+              className="inline-flex h-12 items-center justify-center rounded-[12px] bg-white px-6 text-sm font-bold text-ink shadow-lg transition-colors hover:bg-white/90"
             >
               Soy una marca →
-            </Button>
-            <Button
+            </Link>
+            <Link
               href="/register?role=creator"
-              className="border border-white/30 bg-white/10 text-white backdrop-blur hover:bg-white/20"
+              className="inline-flex h-12 items-center justify-center rounded-[12px] border border-white/50 px-6 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/15"
             >
               Soy creador
-            </Button>
+            </Link>
           </div>
 
           <div className="mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-[18px] border border-white/15 bg-white/10 sm:grid-cols-4">
@@ -204,12 +204,12 @@ export default function Landing() {
               de forma segura. Sin intermediarios, sin comisiones ocultas.
             </p>
             <div className="mt-8 flex justify-center">
-              <Button
+              <Link
                 href="/register?role=creator"
-                className="bg-white !text-accent hover:bg-white/90"
+                className="inline-flex h-12 items-center justify-center rounded-[12px] bg-white px-6 text-sm font-bold text-accent shadow-lg transition-colors hover:bg-white/90"
               >
                 Crear mi perfil de creador
-              </Button>
+              </Link>
             </div>
           </div>
         </div>

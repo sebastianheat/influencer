@@ -3,10 +3,13 @@ import {
   CampaignStatusBadge,
   PageHeader,
 } from "@/components/ui";
-import { campaigns } from "@/lib/data";
+import { getCampaigns } from "@/lib/queries";
 import { dateShort, money } from "@/lib/format";
 
-export default function AdminCampaigns() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminCampaigns() {
+  const campaigns = await getCampaigns();
   const totalGmv = campaigns.reduce((s, c) => s + c.payPerCreator * c.filled, 0);
 
   return (

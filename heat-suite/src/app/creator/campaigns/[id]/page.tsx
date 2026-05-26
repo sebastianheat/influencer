@@ -7,12 +7,10 @@ import {
   CampaignStatusBadge,
   PlatformChips,
 } from "@/components/ui";
-import { campaigns, getCampaign } from "@/lib/data";
+import { getCampaign } from "@/lib/queries";
 import { compact, dateShort, daysLeft, money } from "@/lib/format";
 
-export function generateStaticParams() {
-  return campaigns.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function CreatorCampaignDetail({
   params,
@@ -20,7 +18,7 @@ export default async function CreatorCampaignDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) notFound();
 
   return (
@@ -121,7 +119,7 @@ export default async function CreatorCampaignDetail({
               </div>
             </div>
             <div className="mt-4">
-              <ApplyBox suggestedRate={campaign.payPerCreator} />
+              <ApplyBox campaignId={campaign.id} suggestedRate={campaign.payPerCreator} />
             </div>
           </Card>
         </div>

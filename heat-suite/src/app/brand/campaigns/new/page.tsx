@@ -15,6 +15,7 @@ import {
 } from "@/components/campaign-wizard/CanjesPagos";
 import { cn } from "@/lib/cn";
 import { clp } from "@/lib/format";
+import { createCampaign } from "@/lib/campaign-actions";
 
 const STEP_TITLES = [
   "Campaña",
@@ -100,6 +101,29 @@ export default function NewCampaign() {
     setMenuOpen(false);
   };
 
+  const [publishing, setPublishing] = useState(false);
+  const publish = async () => {
+    setPublishing(true);
+    const res = await createCampaign({
+      title: name,
+      brief: description,
+      niche: objective === "product" ? "Producto" : objective === "event" ? "Evento" : "Marca",
+      tag: contentKind === "organic" ? "Orgánico" : contentKind === "ugc" ? "Pagado" : "Clips",
+      collabTypes: blocks.map((b) => b.type),
+      platforms: ["instagram", "tiktok"],
+      payPerCreator: budgetMode === "fijo" ? liquido : 0,
+      budget: (budgetMode === "fijo" ? liquido : 0) * 10,
+      spots: 10,
+      minFollowers: 0,
+      deadline: "",
+    });
+    if (res?.ok) router.push(`/brand/campaigns/${res.id}`);
+    else {
+      setPublishing(false);
+      router.push("/brand/campaigns");
+    }
+  };
+
   const canNext = step !== 1 || name.trim().length > 0;
   const progress = (step / 5) * 100;
 
@@ -149,10 +173,11 @@ export default function NewCampaign() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push("/brand/campaigns")}
-                    className="heat-gradient-blue rounded-[10px] px-4 py-2 text-sm font-semibold text-white"
+                    onClick={publish}
+                    disabled={publishing}
+                    className="heat-gradient-blue rounded-[10px] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                   >
-                    Publicar campaña
+                    {publishing ? "Publicando…" : "Publicar campaña"}
                   </button>
                 )}
               </div>

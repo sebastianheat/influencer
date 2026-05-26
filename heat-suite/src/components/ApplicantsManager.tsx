@@ -12,6 +12,7 @@ import {
 import type { Application, Influencer } from "@/lib/types";
 import { compact, dateShort, money } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { updateApplicationStatus } from "@/lib/campaign-actions";
 
 type Row = { app: Application; inf: Influencer };
 
@@ -21,10 +22,12 @@ export function ApplicantsManager({ initial }: { initial: Row[] }) {
     "all",
   );
 
-  const setStatus = (appId: string, status: Application["status"]) =>
+  const setStatus = (appId: string, status: Application["status"]) => {
     setRows((rs) =>
       rs.map((r) => (r.app.id === appId ? { ...r, app: { ...r.app, status } } : r)),
     );
+    void updateApplicationStatus(appId, status);
+  };
 
   const tabs = [
     { key: "all" as const, label: "Todas" },

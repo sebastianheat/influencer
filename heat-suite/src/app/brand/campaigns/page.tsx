@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { MontuCampaignCard } from "@/components/MontuCampaignCard";
-import { campaigns } from "@/lib/data";
+import { getCampaigns } from "@/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 function CountChip({ n }: { n: number }) {
   return (
@@ -10,17 +12,14 @@ function CountChip({ n }: { n: number }) {
   );
 }
 
-export default function BrandCampaigns() {
-  const active = campaigns.filter(
-    (c) => c.status === "active" || c.status === "review",
-  );
+export default async function BrandCampaigns() {
+  const campaigns = await getCampaigns();
+  const active = campaigns.filter((c) => c.status === "active" || c.status === "review");
   const finished = campaigns.filter((c) => c.status === "completed");
 
   return (
     <>
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink">
-        Mis campañas
-      </h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-ink">Mis campañas</h1>
 
       <div className="mt-7 flex items-center gap-2">
         <h2 className="text-lg font-bold text-ink">Campañas Activas</h2>

@@ -1,8 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useActionState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { Button, Field } from "@/components/ui";
+import { authenticate } from "@/lib/auth-actions";
 
 export default function LoginPage() {
+  const [state, action, pending] = useActionState(authenticate, undefined);
+
   return (
     <AuthShell>
       <h1 className="text-2xl font-extrabold tracking-tight text-ink">
@@ -12,31 +18,18 @@ export default function LoginPage() {
         Entra para gestionar tus campañas y colaboraciones.
       </p>
 
-      <div className="mt-7 space-y-4">
-        <Field label="Email" type="email" placeholder="tu@email.com" />
-        <Field label="Contraseña" type="password" placeholder="••••••••" />
-        <div className="flex items-center justify-between text-[13px]">
-          <label className="flex items-center gap-2 text-soft-ink">
-            <input type="checkbox" className="accent-[var(--color-accent)]" />
-            Recuérdame
-          </label>
-          <a href="#" className="font-semibold text-accent hover:underline">
-            ¿Olvidaste tu contraseña?
-          </a>
-        </div>
-        <Button href="/brand" full>
-          Entrar
+      <form action={action} className="mt-7 space-y-4">
+        <Field label="Email" type="email" name="email" placeholder="tu@email.com" required />
+        <Field label="Contraseña" type="password" name="password" placeholder="••••••••" required />
+        {state?.error && (
+          <p className="rounded-[10px] bg-danger-bg px-3 py-2 text-sm font-semibold text-danger">
+            {state.error}
+          </p>
+        )}
+        <Button type="submit" full>
+          {pending ? "Entrando…" : "Entrar"}
         </Button>
-      </div>
-
-      <div className="my-6 flex items-center gap-3 text-xs text-dim">
-        <span className="h-px flex-1 bg-line" />o continúa con
-        <span className="h-px flex-1 bg-line" />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="secondary">Google</Button>
-        <Button variant="secondary">Apple</Button>
-      </div>
+      </form>
 
       <p className="mt-7 text-center text-sm text-soft-ink">
         ¿No tienes cuenta?{" "}
@@ -46,19 +39,10 @@ export default function LoginPage() {
       </p>
 
       <div className="mt-6 rounded-[10px] border border-line bg-soft p-3 text-center text-xs text-dim">
-        Demo: entra directo a los portales de{" "}
-        <Link href="/brand" className="font-semibold text-accent">
-          marca
-        </Link>
-        ,{" "}
-        <Link href="/creator" className="font-semibold text-accent">
-          creador
-        </Link>{" "}
-        o{" "}
-        <Link href="/admin" className="font-semibold text-accent">
-          admin
-        </Link>
-        .
+        Cuentas demo (contraseña <strong>demo1234</strong>):<br />
+        <span className="font-semibold text-soft-ink">brand@heat.test</span> ·{" "}
+        <span className="font-semibold text-soft-ink">creator@heat.test</span> ·{" "}
+        <span className="font-semibold text-soft-ink">admin@heat.test</span>
       </div>
     </AuthShell>
   );
