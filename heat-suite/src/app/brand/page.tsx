@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MontuCampaignCard } from "@/components/MontuCampaignCard";
 import { BrandIntegrations } from "@/components/BrandIntegrations";
 import { auth } from "@/auth";
-import { getCampaigns } from "@/lib/queries";
+import { getCampaigns, getConnectedProviders } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +19,7 @@ export default async function BrandDashboard() {
   const firstName = (session?.user?.name ?? "").split(" ")[0] || "marca";
   const campaigns = await getCampaigns();
   const active = campaigns.filter((c) => c.status === "active" || c.status === "review");
+  const connected = [...(await getConnectedProviders())];
 
   return (
     <>
@@ -91,7 +92,7 @@ export default async function BrandDashboard() {
         </div>
       </div>
 
-      <BrandIntegrations />
+      <BrandIntegrations connected={connected} />
     </>
   );
 }
