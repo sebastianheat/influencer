@@ -1,5 +1,8 @@
 import { cn } from "@/lib/cn";
 
+const LOGO_URL =
+  "https://assets.cdn.filesafe.space/srjD6kS5EFIUXLtgl6hd/media/69c6e9f60c63d54fc34025ac.png";
+
 export function Logo({
   variant = "light",
   className,
@@ -8,28 +11,16 @@ export function Logo({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-2.5", className)}>
-      <div className="heat-gradient-blue flex h-9 w-9 items-center justify-center rounded-[11px] text-base font-extrabold text-white shadow-[var(--shadow-accent)]">
-        H
-      </div>
-      <div className="leading-none">
-        <span
-          className={cn(
-            "block text-[15px] font-extrabold tracking-tight",
-            variant === "light" ? "text-white" : "text-ink",
-          )}
-        >
-          Heat Suite
-        </span>
-        <span
-          className={cn(
-            "block text-[10px] font-semibold uppercase tracking-[0.18em]",
-            variant === "light" ? "text-sky" : "text-dim",
-          )}
-        >
-          Influencers
-        </span>
-      </div>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={LOGO_URL}
+      alt="Heat Suite"
+      className={cn(
+        "h-8 w-auto object-contain",
+        // On dark backgrounds (sidebar, gradient panels) render the logo white.
+        variant === "light" && "brightness-0 invert",
+        className,
+      )}
+    />
   );
 }
