@@ -8,6 +8,7 @@ import {
 } from "@/components/ui";
 import { notFound } from "next/navigation";
 import { currentCreatorId, getConnectedProviders, getCreator } from "@/lib/queries";
+import { disconnectProvider } from "@/lib/campaign-actions";
 import { compact, money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -111,7 +112,14 @@ export default async function CreatorProfile() {
                     </span>
                     <span className="flex-1 text-sm font-semibold text-ink">{p.label}</span>
                     {done ? (
-                      <span className="text-sm font-bold text-success">Conectado ✓</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-success">Conectado ✓</span>
+                        <form action={disconnectProvider.bind(null, p.id)}>
+                          <button type="submit" className="text-xs font-semibold text-dim hover:text-danger">
+                            Desvincular
+                          </button>
+                        </form>
+                      </div>
                     ) : (
                       <a href={`/api/connect/${p.id}`} className="text-sm font-bold text-accent hover:underline">
                         Vincular
