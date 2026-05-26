@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { Button } from "@/components/ui";
 
 const stats = [
   { value: "12K+", label: "Creadores verificados" },
@@ -64,27 +63,33 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-page">
       {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Logo variant="dark" />
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-muted md:flex">
-            <a href="#features" className="hover:text-ink">
+      <header className="sticky top-0 z-30 bg-accent text-white shadow-[0_2px_12px_rgba(37,99,235,0.35)]">
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5">
+          <Logo variant="light" className="h-9" />
+          <nav className="hidden items-center gap-7 text-sm font-semibold text-white/85 md:flex">
+            <a href="#features" className="hover:text-white">
               Producto
             </a>
-            <a href="#how" className="hover:text-ink">
+            <a href="#how" className="hover:text-white">
               Cómo funciona
             </a>
-            <a href="#creators" className="hover:text-ink">
+            <a href="#creators" className="hover:text-white">
               Para creadores
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <Button href="/login" variant="ghost" size="sm">
+            <Link
+              href="/login"
+              className="rounded-[10px] px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-white"
+            >
               Entrar
-            </Button>
-            <Button href="/register" size="sm">
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-[10px] bg-white px-4 py-2 text-sm font-bold text-accent shadow-sm hover:bg-white/90"
+            >
               Empezar
-            </Button>
+            </Link>
           </div>
         </div>
       </header>
