@@ -6,19 +6,12 @@ import {
   currentCreatorId,
   getApplicationsForCreator,
   getCampaigns,
+  getConnectedProviders,
   getCreator,
 } from "@/lib/queries";
 import { money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-const checklist = [
-  { icon: "IG", bg: "linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)", title: "Vincula Instagram", sub: "Conecta tu cuenta", action: "Vincular" },
-  { icon: "TT", bg: "#000000", title: "Vincula TikTok", sub: "Conecta tu cuenta", action: "Vincular" },
-  { icon: "🏦", bg: "#E2E8F0", title: "Completa tus datos bancarios", sub: "Para recibir pagos", action: "Completar" },
-  { icon: "📍", bg: "#E2E8F0", title: "Completa tu dirección", sub: "Para envíos y facturación", action: "Completar" },
-  { icon: "🏷️", bg: "#E2E8F0", title: "Completa tu portafolio", sub: "Para recomendarte campañas", action: "Completar" },
-];
 
 export default async function CreatorDashboard() {
   const session = await auth();
@@ -28,8 +21,32 @@ export default async function CreatorDashboard() {
   const myApps = id ? await getApplicationsForCreator(id) : [];
   const open = (await getCampaigns()).filter((c) => c.status === "active").slice(0, 4);
 
+  const connected = await getConnectedProviders();
   const accepted = myApps.filter((a) => a.app.status === "accepted");
   const earnings = accepted.reduce((s, a) => s + a.app.proposedRate, 0);
+  const socialsConnected = connected.has("instagram") || connected.has("tiktok");
+
+  const checklist = [
+    {
+      icon: "IG",
+      bg: "linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)",
+      title: "Vincula Instagram",
+      sub: "Conecta tu cuenta",
+      href: "/api/connect/instagram",
+      done: connected.has("instagram"),
+    },
+    {
+      icon: "TT",
+      bg: "#000000",
+      title: "Vincula TikTok",
+      sub: "Conecta tu cuenta",
+      href: "/api/connect/tiktok",
+      done: connected.has("tiktok"),
+    },
+    { icon: "🏦", bg: "#E2E8F0", title: "Completa tus datos bancarios", sub: "Para recibir pagos", href: "/creator/profile", done: false },
+    { icon: "📍", bg: "#E2E8F0", title: "Completa tu dirección", sub: "Para envíos y facturación", href: "/creator/profile", done: false },
+    { icon: "🏷️", bg: "#E2E8F0", title: "Completa tu portafolio", sub: "Para recomendarte campañas", href: "/creator/profile", done: false },
+  ];
   const xp = myApps.length * 20 + accepted.length * 120;
   const nextLevel = 1000;
   const pct = Math.min(100, Math.round((xp / nextLevel) * 100));
@@ -70,6 +87,7 @@ export default async function CreatorDashboard() {
       </div>
 
       {/* Connect socials warning */}
+      {!socialsConnected && (
       <div className="mt-5 overflow-hidden rounded-[18px] bg-gradient-to-r from-warning to-[#F59E0B] p-5 text-white shadow-[var(--shadow-card)]">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-white/90 text-xl text-warning">
@@ -93,6 +111,7 @@ export default async function CreatorDashboard() {
         </div>
         <p className="mt-1.5 text-xs text-white/90">50% completo</p>
       </div>
+      )}
 
       {/* Stats */}
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -138,9 +157,13 @@ export default async function CreatorDashboard() {
               <p className="font-semibold text-ink">{c.title}</p>
               <p className="text-xs text-dim">{c.sub}</p>
             </div>
-            <Link href="/creator/profile" className="text-sm font-bold text-accent hover:underline">
-              {c.action}
-            </Link>
+            {c.done ? (
+              <span className="text-sm font-bold text-success">Conectado ✓</span>
+            ) : (
+              <Link href={c.href} className="text-sm font-bold text-accent hover:underline">
+                {c.href.startsWith("/api/connect") ? "Vincular" : "Completar"}
+              </Link>
+            )}
           </div>
         ))}
       </div>

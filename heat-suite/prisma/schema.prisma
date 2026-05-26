@@ -36,6 +36,24 @@ model User {
   createdAt    DateTime        @default(now())
   brand        Brand?
   creator      CreatorProfile?
+  connections  Connection[]
+}
+
+model Connection {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String // instagram | tiktok | shopify | woocommerce
+  externalId   String?
+  username     String?
+  accessToken  String?
+  refreshToken String?
+  shop         String? // shopify/woocommerce store domain
+  scope        String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([userId, provider])
 }
 
 model Brand {
