@@ -2,29 +2,21 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useActionState, useState } from "react";
 import { AuthShell } from "@/components/AuthShell";
 import { Button, Field } from "@/components/ui";
+import { registerUser } from "@/lib/auth-actions";
 import { cn } from "@/lib/cn";
 
 function RegisterForm() {
   const params = useSearchParams();
   const initial = params.get("role") === "creator" ? "creator" : "brand";
   const [role, setRole] = useState<"brand" | "creator">(initial);
+  const [state, action, pending] = useActionState(registerUser, undefined);
 
   const roles = [
-    {
-      key: "brand" as const,
-      icon: "🏢",
-      title: "Soy una marca",
-      desc: "Quiero crear campañas y reclutar creadores.",
-    },
-    {
-      key: "creator" as const,
-      icon: "✨",
-      title: "Soy creador",
-      desc: "Quiero descubrir campañas y monetizar.",
-    },
+    { key: "brand" as const, icon: "🏢", title: "Soy una marca", desc: "Quiero crear campañas y reclutar creadores." },
+    { key: "creator" as const, icon: "✨", title: "Soy creador", desc: "Quiero descubrir campañas y monetizar." },
   ];
 
   return (
@@ -40,6 +32,7 @@ function RegisterForm() {
         {roles.map((r) => (
           <button
             key={r.key}
+            type="button"
             onClick={() => setRole(r.key)}
             className={cn(
               "rounded-[12px] border p-4 text-left transition-all",
@@ -55,17 +48,25 @@ function RegisterForm() {
         ))}
       </div>
 
-      <div className="mt-5 space-y-4">
+      <form action={action} className="mt-5 space-y-4">
+        <input type="hidden" name="role" value={role === "brand" ? "BRAND" : "CREATOR"} />
         <Field
           label={role === "brand" ? "Nombre de la marca" : "Nombre completo"}
+          name="name"
           placeholder={role === "brand" ? "Aurora Studio" : "Lucía Marín"}
+          required
         />
-        <Field label="Email" type="email" placeholder="tu@email.com" />
-        <Field label="Contraseña" type="password" placeholder="Mínimo 8 caracteres" />
-        <Button href={role === "brand" ? "/brand" : "/creator"} full>
-          Crear cuenta
+        <Field label="Email" type="email" name="email" placeholder="tu@email.com" required />
+        <Field label="Contraseña" type="password" name="password" placeholder="Mínimo 6 caracteres" required />
+        {state?.error && (
+          <p className="rounded-[10px] bg-danger-bg px-3 py-2 text-sm font-semibold text-danger">
+            {state.error}
+          </p>
+        )}
+        <Button type="submit" full>
+          {pending ? "Creando…" : "Crear cuenta"}
         </Button>
-      </div>
+      </form>
 
       <p className="mt-6 text-center text-sm text-soft-ink">
         ¿Ya tienes cuenta?{" "}

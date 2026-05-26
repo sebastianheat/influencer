@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Logo } from "./Logo";
 import { Avatar } from "./ui";
 import { cn } from "@/lib/cn";
+import { logout } from "@/lib/auth-actions";
 
 export type NavItem = { label: string; href: string; icon: string };
 export type NavGroup = { label?: string; items: NavItem[] };
@@ -112,13 +113,15 @@ export function AppShell({
             <span className="text-base">🔄</span>
             {switchLabel}
           </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white/55 transition-colors hover:bg-[var(--color-sidebar-hover)] hover:text-white"
-          >
-            <span className="text-base">↩︎</span>
-            Cerrar sesión
-          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left text-sm font-semibold text-white/55 transition-colors hover:bg-[var(--color-sidebar-hover)] hover:text-white"
+            >
+              <span className="text-base">↩︎</span>
+              Cerrar sesión
+            </button>
+          </form>
         </div>
       </aside>
 

@@ -1,8 +1,28 @@
+import fs from "node:fs";
+import path from "node:path";
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
 import bcrypt from "bcryptjs";
 import { influencers, campaigns, applications } from "../src/lib/data";
 
-const prisma = new PrismaClient();
+// Neon serverless driver over WebSocket (443) — works where TCP 5432 is blocked.
+neonConfig.webSocketConstructor = ws;
+const connectionString = process.env.DATABASE_URL!;
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter });
+
+async function applySchema() {
+  const sql = fs.readFileSync(path.join(process.cwd(), "prisma/init.sql"), "utf8");
+  const pool = new Pool({ connectionString });
+  try {
+    await pool.query(sql);
+    console.log("Esquema aplicado (init.sql).");
+  } finally {
+    await pool.end();
+  }
+}
 
 const STATUS = {
   draft: "DRAFT",
@@ -19,6 +39,8 @@ const APP_STATUS = {
 } as const;
 
 async function main() {
+  if (process.env.APPLY_SCHEMA === "1") await applySchema();
+
   const pass = await bcrypt.hash("demo1234", 10);
 
   // Clean

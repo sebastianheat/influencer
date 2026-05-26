@@ -286,12 +286,16 @@ export function Field({
   placeholder,
   defaultValue,
   hint,
+  name,
+  required,
 }: {
   label: string;
   type?: string;
   placeholder?: string;
   defaultValue?: string;
   hint?: string;
+  name?: string;
+  required?: boolean;
 }) {
   return (
     <label className="block">
@@ -300,6 +304,8 @@ export function Field({
       </span>
       <input
         type={type}
+        name={name}
+        required={required}
         placeholder={placeholder}
         defaultValue={defaultValue}
         className="h-11 w-full rounded-[10px] border border-line bg-surface px-3.5 text-sm text-ink placeholder:text-dim focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
