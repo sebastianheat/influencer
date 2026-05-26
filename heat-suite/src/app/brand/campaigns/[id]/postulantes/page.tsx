@@ -1,16 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApplicantsManager } from "@/components/ApplicantsManager";
-import {
-  applicationsForCampaign,
-  campaigns,
-  getCampaign,
-  getInfluencer,
-} from "@/lib/data";
+import { getApplicationsForCampaign, getCampaign } from "@/lib/queries";
 
-export function generateStaticParams() {
-  return campaigns.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function Postulantes({
   params,
@@ -18,12 +11,10 @@ export default async function Postulantes({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) notFound();
 
-  const rows = applicationsForCampaign(campaign.id)
-    .map((app) => ({ app, inf: getInfluencer(app.influencerId)! }))
-    .filter((r) => r.inf);
+  const rows = await getApplicationsForCampaign(campaign.id);
 
   return (
     <>
@@ -39,9 +30,7 @@ export default async function Postulantes({
         <span className="font-semibold text-accent">Postulantes</span>
       </nav>
 
-      <h1 className="text-2xl font-extrabold tracking-tight text-ink">
-        Postulantes
-      </h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-ink">Postulantes</h1>
       <p className="mb-6 mt-1 text-sm text-soft-ink">
         Revisa quién quiere participar y arma tu preselección.
       </p>

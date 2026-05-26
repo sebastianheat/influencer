@@ -8,12 +8,10 @@ import {
   StatCard,
 } from "@/components/ui";
 import { Avatar } from "@/components/ui";
-import { getInfluencer, influencers } from "@/lib/data";
+import { getCreator } from "@/lib/queries";
 import { compact, money } from "@/lib/format";
 
-export function generateStaticParams() {
-  return influencers.map((i) => ({ id: i.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function InfluencerProfile({
   params,
@@ -21,7 +19,7 @@ export default async function InfluencerProfile({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const inf = getInfluencer(id);
+  const inf = await getCreator(id);
   if (!inf) notFound();
 
   return (

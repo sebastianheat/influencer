@@ -3,17 +3,10 @@ import { notFound } from "next/navigation";
 import { Avatar } from "@/components/ui";
 import { CampaignPipeline } from "@/components/CampaignPipeline";
 import { CampaignPlannerCard } from "@/components/CampaignPlannerCard";
-import {
-  applicationsForCampaign,
-  campaigns,
-  getCampaign,
-  getInfluencer,
-} from "@/lib/data";
+import { getApplicationsForCampaign, getCampaign } from "@/lib/queries";
 import { clp, compact, dateShort } from "@/lib/format";
 
-export function generateStaticParams() {
-  return campaigns.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 function Stat({
   icon,
@@ -49,28 +42,20 @@ export default async function CampaignDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const campaign = getCampaign(id);
+  const campaign = await getCampaign(id);
   if (!campaign) notFound();
 
-  const apps = applicationsForCampaign(campaign.id);
-  const accepted = apps
-    .filter((a) => a.status === "accepted")
-    .map((a) => getInfluencer(a.influencerId))
-    .filter((x): x is NonNullable<typeof x> => Boolean(x));
-  const preselection = apps
-    .filter((a) => a.status === "pending" || a.status === "shortlisted")
-    .map((a) => getInfluencer(a.influencerId))
-    .filter((x): x is NonNullable<typeof x> => Boolean(x))
-    .map((i) => ({ id: i.id, name: i.name, handle: i.handle }));
+  const rows = await getApplicationsForCampaign(campaign.id);
+  const accepted = rows.filter((r) => r.app.status === "accepted").map((r) => r.inf);
+  const preselection = rows
+    .filter((r) => r.app.status === "pending" || r.app.status === "shortlisted")
+    .map((r) => ({ id: r.inf.id, name: r.inf.name, handle: r.inf.handle }));
 
-  const invest = accepted.reduce(
-    (s, i) => s + (apps.find((a) => a.influencerId === i.id)?.proposedRate ?? 0),
-    0,
-  );
+  const invest = rows
+    .filter((r) => r.app.status === "accepted")
+    .reduce((s, r) => s + r.app.proposedRate, 0);
   const reach = accepted.reduce((s, i) => s + i.reach, 0);
-  const applicants = apps
-    .map((a) => getInfluencer(a.influencerId))
-    .filter((x): x is NonNullable<typeof x> => Boolean(x));
+  const applicants = rows.map((r) => r.inf);
 
   return (
     <>

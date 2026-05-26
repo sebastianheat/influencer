@@ -1,26 +1,17 @@
 import { Avatar, Badge, Card, PageHeader } from "@/components/ui";
-import { users } from "@/lib/data";
+import { prisma } from "@/lib/prisma";
 import { dateShort } from "@/lib/format";
 
-const roleLabel = { brand: "Marca", creator: "Creador", admin: "Admin" };
-const statusTone = {
-  active: "success",
-  pending: "warning",
-  suspended: "danger",
-} as const;
-const statusLabel = {
-  active: "Activo",
-  pending: "Pendiente",
-  suspended: "Suspendido",
-};
+export const dynamic = "force-dynamic";
 
-export default function AdminUsers() {
+const roleLabel: Record<string, string> = { BRAND: "Marca", CREATOR: "Creador", ADMIN: "Admin" };
+
+export default async function AdminUsers() {
+  const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+
   return (
     <>
-      <PageHeader
-        title="Usuarios"
-        subtitle={`${users.length} cuentas registradas en la plataforma.`}
-      />
+      <PageHeader title="Usuarios" subtitle={`${users.length} cuentas registradas en la plataforma.`} />
 
       <Card padded={false} className="overflow-hidden">
         <table className="w-full text-sm">
@@ -38,13 +29,7 @@ export default function AdminUsers() {
               <tr key={u.id} className="hover:bg-soft">
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
-                    {u.avatar ? (
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-lg">
-                        {u.avatar}
-                      </div>
-                    ) : (
-                      <Avatar name={u.name} size={36} />
-                    )}
+                    <Avatar name={u.name} size={36} />
                     <div>
                       <p className="font-semibold text-ink">{u.name}</p>
                       <p className="text-xs text-dim">{u.email}</p>
@@ -52,18 +37,16 @@ export default function AdminUsers() {
                   </div>
                 </td>
                 <td className="px-5 py-3">
-                  <Badge tone={u.role === "brand" ? "accent" : "neutral"}>
-                    {roleLabel[u.role]}
+                  <Badge tone={u.role === "BRAND" ? "accent" : u.role === "ADMIN" ? "warning" : "neutral"}>
+                    {roleLabel[u.role] ?? u.role}
                   </Badge>
                 </td>
-                <td className="px-5 py-3 text-soft-ink">{dateShort(u.joinedAt)}</td>
+                <td className="px-5 py-3 text-soft-ink">{dateShort(u.createdAt.toISOString())}</td>
                 <td className="px-5 py-3">
-                  <Badge tone={statusTone[u.status]}>{statusLabel[u.status]}</Badge>
+                  <Badge tone="success">Activo</Badge>
                 </td>
                 <td className="px-5 py-3 text-right">
-                  <button className="rounded-lg px-2 py-1 text-soft-ink hover:bg-card hover:text-ink">
-                    ⋯
-                  </button>
+                  <button className="rounded-lg px-2 py-1 text-soft-ink hover:bg-card hover:text-ink">⋯</button>
                 </td>
               </tr>
             ))}

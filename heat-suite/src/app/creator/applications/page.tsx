@@ -5,13 +5,14 @@ import {
   EmptyState,
   PageHeader,
 } from "@/components/ui";
-import { applicationsForInfluencer, getCampaign } from "@/lib/data";
+import { currentCreatorId, getApplicationsForCreator } from "@/lib/queries";
 import { dateShort, money } from "@/lib/format";
 
-const ME = "inf-1";
+export const dynamic = "force-dynamic";
 
-export default function CreatorApplications() {
-  const apps = applicationsForInfluencer(ME);
+export default async function CreatorApplications() {
+  const me = await currentCreatorId();
+  const apps = me ? await getApplicationsForCreator(me) : [];
 
   return (
     <>
@@ -29,34 +30,28 @@ export default function CreatorApplications() {
       ) : (
         <Card padded={false}>
           <div className="divide-y divide-line">
-            {apps.map((app) => {
-              const cmp = getCampaign(app.campaignId);
-              if (!cmp) return null;
-              return (
-                <Link
-                  key={app.id}
-                  href={`/creator/campaigns/${cmp.id}`}
-                  className="flex flex-wrap items-center gap-4 px-5 py-4 hover:bg-soft"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-card text-xl">
-                    {cmp.brandLogo}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-ink">{cmp.title}</p>
-                    <p className="text-xs text-dim">
-                      {cmp.brand} · postulada el {dateShort(app.appliedAt)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-extrabold text-ink">
-                      {money(app.proposedRate)}
-                    </p>
-                    <p className="text-[11px] text-dim">tu tarifa</p>
-                  </div>
-                  <ApplicationStatusBadge status={app.status} />
-                </Link>
-              );
-            })}
+            {apps.map(({ app, campaign }) => (
+              <Link
+                key={app.id}
+                href={`/creator/campaigns/${campaign.id}`}
+                className="flex flex-wrap items-center gap-4 px-5 py-4 hover:bg-soft"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-card text-xl">
+                  {campaign.brandLogo}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-ink">{campaign.title}</p>
+                  <p className="text-xs text-dim">
+                    {campaign.brand} · postulada el {dateShort(app.appliedAt)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-extrabold text-ink">{money(app.proposedRate)}</p>
+                  <p className="text-[11px] text-dim">tu tarifa</p>
+                </div>
+                <ApplicationStatusBadge status={app.status} />
+              </Link>
+            ))}
           </div>
         </Card>
       )}

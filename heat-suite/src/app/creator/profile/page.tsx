@@ -7,13 +7,16 @@ import {
   PlatformChips,
   StatCard,
 } from "@/components/ui";
-import { getInfluencer } from "@/lib/data";
+import { notFound } from "next/navigation";
+import { currentCreatorId, getCreator } from "@/lib/queries";
 import { compact, money } from "@/lib/format";
 
-const ME = "inf-1";
+export const dynamic = "force-dynamic";
 
-export default function CreatorProfile() {
-  const me = getInfluencer(ME)!;
+export default async function CreatorProfile() {
+  const id = await currentCreatorId();
+  const me = id ? await getCreator(id) : null;
+  if (!me) notFound();
 
   return (
     <>
