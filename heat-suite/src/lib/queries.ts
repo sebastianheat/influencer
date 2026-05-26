@@ -145,6 +145,16 @@ export async function currentBrandId(): Promise<string | null> {
   return brand?.id ?? null;
 }
 
+export async function getConnectedProviders(): Promise<Set<string>> {
+  const session = await auth();
+  if (!session?.user?.id) return new Set();
+  const rows = await prisma.connection.findMany({
+    where: { userId: session.user.id },
+    select: { provider: true },
+  });
+  return new Set(rows.map((r) => r.provider));
+}
+
 export async function currentCreatorId(): Promise<string | null> {
   const session = await auth();
   if (!session?.user?.id) return null;

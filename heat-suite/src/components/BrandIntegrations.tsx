@@ -30,7 +30,8 @@ const integrations = [
 ];
 
 export function BrandIntegrations() {
-  const [ecomView, setEcomView] = useState<null | "choose" | "woo">(null);
+  const [ecomView, setEcomView] = useState<null | "choose" | "woo" | "shopify">(null);
+  const [shop, setShop] = useState("");
 
   return (
     <>
@@ -91,10 +92,8 @@ export function BrandIntegrations() {
                   <button onClick={() => setEcomView(null)} className="text-soft-ink">✕</button>
                 </div>
                 <div className="mt-5 space-y-3">
-                  <a
-                    href="https://apps.shopify.com/montu"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setEcomView("shopify")}
                     className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
                   >
                     <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-[#5E8E3E] text-xs font-bold text-white">🛍</span>
@@ -103,7 +102,7 @@ export function BrandIntegrations() {
                       <p className="text-xs text-dim">Sincronización en tiempo real con tu catálogo, pedidos y descuentos.</p>
                     </div>
                     <span className="text-dim">›</span>
-                  </a>
+                  </button>
                   <button
                     onClick={() => setEcomView("woo")}
                     className="flex w-full items-center gap-3 rounded-[12px] border border-line p-4 text-left hover:border-accent"
@@ -115,6 +114,34 @@ export function BrandIntegrations() {
                     </div>
                     <span className="text-dim">›</span>
                   </button>
+                </div>
+              </>
+            ) : ecomView === "shopify" ? (
+              <>
+                <div className="flex items-start justify-between">
+                  <h2 className="text-lg font-extrabold text-ink">Conectar tienda de Shopify</h2>
+                  <button onClick={() => setEcomView(null)} className="text-soft-ink">✕</button>
+                </div>
+                <p className="mb-1.5 mt-4 text-[13px] font-semibold text-ink">Dominio de tu tienda*</p>
+                <input
+                  value={shop}
+                  onChange={(e) => setShop(e.target.value)}
+                  placeholder="Ej: mitienda.myshopify.com"
+                  className="h-11 w-full rounded-[10px] border border-line bg-surface px-3.5 text-sm text-ink placeholder:text-dim focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+                />
+                <div className="mt-5 flex justify-end gap-2">
+                  <button
+                    onClick={() => setEcomView("choose")}
+                    className="rounded-[10px] border border-accent px-4 py-2 text-sm font-semibold text-accent hover:bg-accent-soft"
+                  >
+                    Cancelar
+                  </button>
+                  <a
+                    href={`/api/connect/shopify?shop=${encodeURIComponent(shop.trim())}`}
+                    className="heat-gradient-blue rounded-[10px] px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    Conectar
+                  </a>
                 </div>
               </>
             ) : (

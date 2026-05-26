@@ -4,11 +4,10 @@ import {
   Button,
   Card,
   Field,
-  PlatformChips,
   StatCard,
 } from "@/components/ui";
 import { notFound } from "next/navigation";
-import { currentCreatorId, getCreator } from "@/lib/queries";
+import { currentCreatorId, getConnectedProviders, getCreator } from "@/lib/queries";
 import { compact, money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +16,7 @@ export default async function CreatorProfile() {
   const id = await currentCreatorId();
   const me = id ? await getCreator(id) : null;
   if (!me) notFound();
+  const connected = await getConnectedProviders();
 
   return (
     <>
@@ -90,17 +90,37 @@ export default async function CreatorProfile() {
             </div>
           </Card>
           <Card>
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-ink">Plataformas</h2>
-              <PlatformChips platforms={me.platforms} />
-            </div>
-            <p className="mt-3 text-sm text-soft-ink">
-              Conecta tus cuentas para verificar tus métricas y mejorar tu match
+            <h2 className="font-bold text-ink">Conexiones</h2>
+            <p className="mt-1 text-sm text-soft-ink">
+              Vincula tus cuentas para verificar métricas y mejorar tu match
               score.
             </p>
-            <Button variant="secondary" full className="mt-4">
-              + Conectar red social
-            </Button>
+            <div className="mt-4 space-y-2.5">
+              {[
+                { id: "instagram", label: "Instagram", glyph: "IG", bg: "linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)" },
+                { id: "tiktok", label: "TikTok", glyph: "TT", bg: "#000000" },
+              ].map((p) => {
+                const done = connected.has(p.id);
+                return (
+                  <div key={p.id} className="flex items-center gap-3 rounded-[10px] border border-line p-3">
+                    <span
+                      className="flex h-9 w-9 items-center justify-center rounded-[10px] text-xs font-bold text-white"
+                      style={{ background: p.bg }}
+                    >
+                      {p.glyph}
+                    </span>
+                    <span className="flex-1 text-sm font-semibold text-ink">{p.label}</span>
+                    {done ? (
+                      <span className="text-sm font-bold text-success">Conectado ✓</span>
+                    ) : (
+                      <a href={`/api/connect/${p.id}`} className="text-sm font-bold text-accent hover:underline">
+                        Vincular
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </Card>
           <Card>
             <h2 className="font-bold text-ink">Tarifa base</h2>
