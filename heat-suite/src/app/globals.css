@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+  HEAT SUITE design system.
+  Palette + typography extracted from the HEAT IA onboarding product
+  (Plus Jakarta Sans, dark navy sidebar, light content, blue accent).
+*/
+@theme {
+  --font-sans: "Plus Jakarta Sans", var(--font-jakarta), -apple-system,
+    BlinkMacSystemFont, sans-serif;
+  --font-mono: "SF Mono", Monaco, Consolas, monospace;
+
+  /* Brand / accent */
+  --color-accent: #2563eb;
+  --color-accent-600: #1d4ed8;
+  --color-accent-soft: rgba(37, 99, 235, 0.08);
+  --color-accent-glow: rgba(37, 99, 235, 0.15);
+  --color-violet: #8b5cf6;
+  --color-sky: #5ba9ff;
+
+  /* Surfaces */
+  --color-page: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-soft: #f8fafc;
+  --color-card: #f1f5f9;
+
+  /* Sidebar (dark) */
+  --color-sidebar: #0b1220;
+  --color-sidebar-active: rgba(91, 169, 255, 0.18);
+  --color-sidebar-hover: rgba(91, 169, 255, 0.08);
+
+  /* Text */
+  --color-ink: #0b1220;
+  --color-muted: #475569;
+  --color-soft-ink: #64748b;
+  --color-dim: #94a3b8;
+
+  /* Borders */
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  /* Status */
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fee2e2;
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+
+  --radius-card: 14px;
+  --radius-control: 10px;
+
+  --shadow-soft: 0 1px 3px rgba(15, 23, 42, 0.06),
+    0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-accent: -3px 4px 14px rgba(37, 99, 235, 0.28);
+}
+
+html {
+  background: var(--color-page);
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reusable gradient surfaces matching the HEAT look */
+.heat-gradient {
+  background: linear-gradient(135deg, #1e3a8a 0%, #5ba9ff 45%, #8b5cf6 100%);
+}
+.heat-gradient-blue {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+}
+.heat-gradient-soft {
+  background: linear-gradient(135deg, #5ba9ff 0%, #8b5cf6 100%);
+}
+.heat-text-gradient {
+  background: linear-gradient(135deg, #5ba9ff 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom scrollbar for the dark sidebar */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
