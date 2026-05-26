@@ -2,8 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { currentBrandId, currentCreatorId } from "@/lib/queries";
 import type { ApplicationStatus } from "@/lib/types";
+
+export async function disconnectProvider(provider: string): Promise<void> {
+  const session = await auth();
+  if (!session?.user?.id) return;
+  await prisma.connection.deleteMany({
+    where: { userId: session.user.id, provider },
+  });
+  revalidatePath("/creator/profile");
+  revalidatePath("/creator");
+}
 
 const toDbAppStatus = {
   pending: "PENDING",
