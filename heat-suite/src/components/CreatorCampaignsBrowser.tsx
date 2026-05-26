@@ -2,39 +2,54 @@
 
 import { useState } from "react";
 import { CampaignCard } from "@/components/CampaignCard";
-import { PageHeader } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { daysLeft } from "@/lib/format";
 import type { Campaign } from "@/lib/types";
 
+type FilterKey = "all" | "paid" | "ugc" | "organic" | "closing";
+
+const filters: { key: FilterKey; label: string }[] = [
+  { key: "all", label: "Todas" },
+  { key: "paid", label: "Con pago" },
+  { key: "ugc", label: "UGC" },
+  { key: "organic", label: "Orgánica" },
+  { key: "closing", label: "Cerca de cerrar" },
+];
+
 export function CreatorCampaignsBrowser({ campaigns }: { campaigns: Campaign[] }) {
-  const niches = ["Todos", ...Array.from(new Set(campaigns.map((c) => c.niche)))];
-  const [niche, setNiche] = useState("Todos");
-  const list = niche === "Todos" ? campaigns : campaigns.filter((c) => c.niche === niche);
+  const [f, setF] = useState<FilterKey>("all");
+
+  const list = campaigns.filter((c) => {
+    if (f === "paid") return c.payPerCreator > 0;
+    if (f === "ugc") return c.collabTypes.includes("ugc");
+    if (f === "organic") return c.tag === "Orgánico";
+    if (f === "closing") return daysLeft(c.deadline) <= 14;
+    return true;
+  });
 
   return (
     <>
-      <PageHeader
-        title="Explorar campañas"
-        subtitle="Encuentra colaboraciones que encajen con tu audiencia."
-      />
+      <h1 className="text-2xl font-extrabold tracking-tight text-ink">Explorar</h1>
+      <p className="mt-1 text-sm text-soft-ink">Campañas activas para ti</p>
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        {niches.map((n) => (
+      <div className="mt-5 flex flex-wrap gap-2">
+        {filters.map((opt) => (
           <button
-            key={n}
-            onClick={() => setNiche(n)}
+            key={opt.key}
+            onClick={() => setF(opt.key)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
-              niche === n
-                ? "bg-ink text-white"
+              "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+              f === opt.key
+                ? "heat-gradient-blue text-white"
                 : "border border-line bg-surface text-muted hover:border-line-strong",
             )}
           >
-            {n}
+            {opt.label}
           </button>
         ))}
       </div>
 
+      <h2 className="mb-3 mt-7 text-lg font-bold text-ink">Puedes postular</h2>
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((c) => (
           <CampaignCard
@@ -44,6 +59,9 @@ export function CreatorCampaignsBrowser({ campaigns }: { campaigns: Campaign[] }
             ctaLabel="Postularme"
           />
         ))}
+        {list.length === 0 && (
+          <p className="text-sm text-soft-ink">No hay campañas con ese filtro.</p>
+        )}
       </div>
     </>
   );

@@ -1,10 +1,10 @@
 import { AppShell, type NavItem } from "@/components/AppShell";
 
 const nav: NavItem[] = [
-  { label: "Panel", href: "/creator", icon: "📊" },
-  { label: "Explorar campañas", href: "/creator/campaigns", icon: "🔎" },
-  { label: "Mis postulaciones", href: "/creator/applications", icon: "📨" },
-  { label: "Mi perfil", href: "/creator/profile", icon: "👤" },
+  { label: "Inicio", href: "/creator", icon: "🏠" },
+  { label: "Explorar", href: "/creator/campaigns", icon: "🧭" },
+  { label: "Collabs", href: "/creator/applications", icon: "🤝" },
+  { label: "Perfil", href: "/creator/profile", icon: "👤" },
 ];
 
 export default function CreatorLayout({
