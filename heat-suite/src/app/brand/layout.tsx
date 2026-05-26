@@ -1,10 +1,27 @@
-import { AppShell, type NavItem } from "@/components/AppShell";
+import { AppShell, type NavGroup, type NavItem } from "@/components/AppShell";
 
-const nav: NavItem[] = [
-  { label: "Panel", href: "/brand", icon: "📊" },
-  { label: "Campañas", href: "/brand/campaigns", icon: "🎯" },
-  { label: "Creadores", href: "/brand/influencers", icon: "🔍" },
-  { label: "Pagos", href: "/brand/billing", icon: "💳" },
+const groups: NavGroup[] = [
+  {
+    label: "General",
+    items: [{ label: "Dashboard", href: "/brand", icon: "▦" }],
+  },
+  {
+    label: "Campañas",
+    items: [{ label: "Mis campañas", href: "/brand/campaigns", icon: "📣" }],
+  },
+  {
+    label: "Gestión",
+    items: [
+      { label: "Contenidos", href: "/brand/content", icon: "🎬" },
+      { label: "Creadores", href: "/brand/influencers", icon: "✦" },
+      { label: "Afiliados", href: "/brand/affiliates", icon: "🛡️" },
+      { label: "Chat", href: "/brand/chat", icon: "✉️" },
+    ],
+  },
+];
+
+const bottomNav: NavItem[] = [
+  { label: "Configuración", href: "/brand/settings", icon: "⚙️" },
 ];
 
 export default function BrandLayout({
@@ -14,9 +31,11 @@ export default function BrandLayout({
 }) {
   return (
     <AppShell
-      nav={nav}
+      groups={groups}
+      bottomNav={bottomNav}
       roleLabel="Portal de Marca"
-      userName="Aurora Studio"
+      userName="Nueva Isapre"
+      account="Nueva Isapre — Co…"
       switchHref="/creator"
       switchLabel="Cambiar a creador"
     >

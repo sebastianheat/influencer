@@ -10,17 +10,20 @@ export type ApplicationStatus =
 
 export type CollabType = "ugc" | "post" | "reel" | "story" | "clip" | "affiliate";
 
-export type Niche =
-  | "Moda"
-  | "Belleza"
-  | "Fitness"
-  | "Gaming"
-  | "Tecnología"
-  | "Comida"
-  | "Viajes"
-  | "Lifestyle"
-  | "Finanzas"
-  | "Música";
+/* Free-form niche label (Montu uses many categories). */
+export type Niche = string;
+
+export interface TopPost {
+  caption: string;
+  cover: string; // gradient class for the thumbnail
+  likes: number;
+  comments: number;
+  shares: number;
+  saves: number;
+  reach: number;
+  views: number;
+  engagement: number; // %
+}
 
 export interface Influencer {
   id: string;
@@ -37,6 +40,17 @@ export interface Influencer {
   bio: string;
   verified: boolean;
   completedCampaigns: number;
+
+  /* Montu-style fields */
+  age: number | null;
+  region: string | null;
+  comuna: string | null;
+  igFollowers: number | null;
+  ttFollowers: number | null;
+  reviewScore: number | null; // 0-5 or null when no reviews
+  reach: number; // promedio
+  audience: { male: number; female: number; other: number };
+  topPosts: TopPost[];
 }
 
 export interface Campaign {
@@ -60,6 +74,7 @@ export interface Campaign {
   deliverables: string[];
   requirements: string[];
   minFollowers: number;
+  tag: string; // "Orgánico", "Pagado", "Afiliación"
 }
 
 export interface Application {

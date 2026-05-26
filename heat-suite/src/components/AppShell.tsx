@@ -8,18 +8,25 @@ import { Avatar } from "./ui";
 import { cn } from "@/lib/cn";
 
 export type NavItem = { label: string; href: string; icon: string };
+export type NavGroup = { label?: string; items: NavItem[] };
 
 export function AppShell({
   nav,
+  groups,
+  bottomNav,
   roleLabel,
   userName,
+  account,
   switchHref,
   switchLabel,
   children,
 }: {
-  nav: NavItem[];
+  nav?: NavItem[];
+  groups?: NavGroup[];
+  bottomNav?: NavItem[];
   roleLabel: string;
   userName: string;
+  account?: string;
   switchHref: string;
   switchLabel: string;
   children: React.ReactNode;
@@ -27,12 +34,40 @@ export function AppShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+  const sections: NavGroup[] = groups ?? [{ items: nav ?? [] }];
+
+  const allHrefs = [
+    ...sections.flatMap((g) => g.items.map((i) => i.href)),
+    ...(bottomNav?.map((i) => i.href) ?? []),
+  ];
+  const matches = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
+  const activeHref = allHrefs
+    .filter(matches)
+    .sort((a, b) => b.length - a.length)[0];
+  const isActive = (href: string) => href === activeHref;
+
+  const NavLink = ({ item }: { item: NavItem }) => {
+    const active = isActive(item.href);
+    return (
+      <Link
+        href={item.href}
+        onClick={() => setOpen(false)}
+        className={cn(
+          "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-semibold transition-colors",
+          active
+            ? "bg-[var(--color-sidebar-active)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+            : "text-white/55 hover:bg-[var(--color-sidebar-hover)] hover:text-white",
+        )}
+      >
+        <span className="text-base">{item.icon}</span>
+        {item.label}
+      </Link>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-page">
-      {/* Sidebar */}
       <aside
         className={cn(
           "thin-scroll fixed inset-y-0 left-0 z-40 flex w-[252px] flex-col bg-sidebar transition-transform lg:translate-x-0",
@@ -51,29 +86,25 @@ export function AppShell({
           </p>
         </div>
 
-        <nav className="mt-4 flex-1 space-y-0.5 overflow-y-auto px-3">
-          {nav.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-semibold transition-colors",
-                  active
-                    ? "bg-[var(--color-sidebar-active)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-                    : "text-white/55 hover:bg-[var(--color-sidebar-hover)] hover:text-white",
-                )}
-              >
-                <span className="text-base">{item.icon}</span>
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="mt-4 flex-1 space-y-4 overflow-y-auto px-3">
+          {sections.map((group, gi) => (
+            <div key={gi} className="space-y-0.5">
+              {group.label && (
+                <p className="px-3 pb-1 pt-1 text-[10px] font-bold uppercase tracking-widest text-white/30">
+                  {group.label}
+                </p>
+              )}
+              {group.items.map((item) => (
+                <NavLink key={item.href} item={item} />
+              ))}
+            </div>
+          ))}
         </nav>
 
         <div className="border-t border-white/[0.08] p-3">
+          {bottomNav?.map((item) => (
+            <NavLink key={item.href} item={item} />
+          ))}
           <Link
             href={switchHref}
             className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-semibold text-white/55 transition-colors hover:bg-[var(--color-sidebar-hover)] hover:text-white"
@@ -91,7 +122,6 @@ export function AppShell({
         </div>
       </aside>
 
-      {/* Backdrop on mobile */}
       {open && (
         <div
           className="fixed inset-0 z-30 bg-black/40 lg:hidden"
@@ -99,9 +129,8 @@ export function AppShell({
         />
       )}
 
-      {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col lg:pl-[252px]">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line bg-surface/80 px-5 backdrop-blur-md lg:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface/80 px-5 backdrop-blur-md lg:px-8">
           <button
             className="-ml-1 rounded-lg p-2 text-ink lg:hidden"
             onClick={() => setOpen(true)}
@@ -123,7 +152,13 @@ export function AppShell({
               🔔
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger" />
             </button>
-            <Avatar name={userName} size={36} />
+            <button className="flex items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink hover:border-line-strong">
+              <Avatar name={account ?? userName} size={24} />
+              <span className="hidden max-w-[140px] truncate sm:block">
+                {account ?? userName}
+              </span>
+              <span className="text-dim">▾</span>
+            </button>
           </div>
         </header>
 

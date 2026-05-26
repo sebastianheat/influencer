@@ -13,6 +13,17 @@ export function money(n: number): string {
   }).format(n);
 }
 
+/* Social counts in Montu style: 556, 12,8K, 979,1K, 1,8M */
+export function socialCount(n: number | null): string {
+  if (n === null) return "—";
+  if (n === 0) return "0";
+  const fmt = (v: number) =>
+    v.toLocaleString("es-ES", { maximumFractionDigits: 1 });
+  if (n >= 1_000_000) return `${fmt(n / 1_000_000)}M`;
+  if (n >= 1_000) return `${fmt(n / 1_000)}K`;
+  return String(n);
+}
+
 export function dateShort(iso: string): string {
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
