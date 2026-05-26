@@ -67,7 +67,7 @@ export const providers: Record<ProviderId, Provider> = {
     label: "TikTok",
     clientId: process.env.TIKTOK_CLIENT_KEY,
     clientSecret: process.env.TIKTOK_CLIENT_SECRET,
-    scope: "user.info.basic",
+    scope: "user.info.basic,user.info.profile,user.info.stats",
     authorizeUrl: ({ clientId, redirectUri, state, scope }) =>
       `https://www.tiktok.com/v2/auth/authorize/?client_key=${clientId}&scope=${encodeURIComponent(
         scope,
@@ -86,10 +86,25 @@ export const providers: Record<ProviderId, Provider> = {
       });
       const j = await res.json();
       if (!res.ok || j.error) throw new Error(j.error_description || "TikTok token error");
+
+      // Best-effort: fetch the display name / username for the connection label.
+      let username: string | undefined;
+      try {
+        const u = await fetch(
+          "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,username",
+          { headers: { Authorization: `Bearer ${j.access_token}` } },
+        );
+        const uj = await u.json();
+        username = uj?.data?.user?.username || uj?.data?.user?.display_name;
+      } catch {
+        // ignore — connection still saved without a label
+      }
+
       return {
         accessToken: j.access_token,
         refreshToken: j.refresh_token,
         externalId: j.open_id,
+        username,
         scope: j.scope,
         expiresIn: j.expires_in,
       };
