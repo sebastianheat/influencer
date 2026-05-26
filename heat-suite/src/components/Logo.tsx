@@ -17,8 +17,8 @@ export function Logo({
       alt="Heat Suite"
       className={cn(
         "h-8 w-auto object-contain",
-        // On dark backgrounds (sidebar, gradient panels) render the logo white.
-        variant === "light" && "brightness-0 invert",
+        // The asset is white: keep it white on dark surfaces, turn it dark on light ones.
+        variant === "light" ? "brightness-0 invert" : "brightness-0",
         className,
       )}
     />

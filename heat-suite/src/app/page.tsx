@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { Button } from "@/components/ui";
 
 const stats = [
   { value: "12K+", label: "Creadores verificados" },
@@ -60,31 +59,62 @@ const steps = [
   },
 ];
 
+function FooterCol({
+  title,
+  links,
+}: {
+  title: string;
+  links: [string, string][];
+}) {
+  return (
+    <div>
+      <p className="text-xs font-bold uppercase tracking-widest text-white/35">
+        {title}
+      </p>
+      <ul className="mt-4 space-y-2.5">
+        {links.map(([label, href]) => (
+          <li key={label}>
+            <Link href={href} className="text-sm text-white/60 transition-colors hover:text-white">
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-page">
       {/* Nav */}
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <Logo variant="dark" />
-          <nav className="hidden items-center gap-7 text-sm font-semibold text-muted md:flex">
-            <a href="#features" className="hover:text-ink">
+      <header className="sticky top-0 z-30 bg-accent text-white shadow-[0_2px_12px_rgba(37,99,235,0.35)]">
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5">
+          <Logo variant="light" className="h-9" />
+          <nav className="hidden items-center gap-7 text-sm font-semibold text-white/85 md:flex">
+            <a href="#features" className="hover:text-white">
               Producto
             </a>
-            <a href="#how" className="hover:text-ink">
+            <a href="#how" className="hover:text-white">
               Cómo funciona
             </a>
-            <a href="#creators" className="hover:text-ink">
+            <a href="#creators" className="hover:text-white">
               Para creadores
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <Button href="/login" variant="ghost" size="sm">
+            <Link
+              href="/login"
+              className="rounded-[10px] px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-white"
+            >
               Entrar
-            </Button>
-            <Button href="/register" size="sm">
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-[10px] bg-white px-4 py-2 text-sm font-bold text-accent shadow-sm hover:bg-white/90"
+            >
               Empezar
-            </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -216,19 +246,55 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-line bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-10 sm:flex-row">
-          <Logo variant="dark" />
-          <p className="text-sm text-dim">
-            © 2026 Heat Suite. Todos los derechos reservados.
-          </p>
-          <div className="flex gap-5 text-sm font-semibold text-muted">
-            <Link href="/login" className="hover:text-ink">
-              Entrar
-            </Link>
-            <Link href="/register" className="hover:text-ink">
-              Registro
-            </Link>
+      <footer className="bg-sidebar text-white">
+        <div className="mx-auto max-w-6xl px-5 py-14">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="lg:col-span-1">
+              <Logo variant="light" />
+              <p className="mt-4 max-w-xs text-sm text-white/45">
+                Influencer marketing impulsado por creadores. Conecta marcas y
+                talento en un solo lugar.
+              </p>
+              <div className="mt-5 flex gap-2">
+                {["IG", "TT", "in"].map((s) => (
+                  <a
+                    key={s}
+                    href="#"
+                    className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-white/10 text-xs font-bold text-white/60 transition-colors hover:border-white/30 hover:text-white"
+                  >
+                    {s}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <FooterCol
+              title="Plataforma"
+              links={[
+                ["Para empresas", "/register?role=brand"],
+                ["Para creadores", "/register?role=creator"],
+              ]}
+            />
+            <FooterCol
+              title="Recursos"
+              links={[
+                ["Centro de ayuda", "#"],
+                ["Contacto", "#"],
+              ]}
+            />
+            <FooterCol
+              title="Legal"
+              links={[
+                ["Política de privacidad", "#"],
+                ["Términos y condiciones", "#"],
+              ]}
+            />
+          </div>
+
+          <div className="mt-12 border-t border-white/[0.08] pt-6 text-center">
+            <p className="text-sm text-white/40">
+              © 2026 Heat Suite. Todos los derechos reservados.
+            </p>
           </div>
         </div>
       </footer>
