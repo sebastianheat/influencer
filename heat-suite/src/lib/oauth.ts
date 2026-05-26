@@ -67,7 +67,7 @@ export const providers: Record<ProviderId, Provider> = {
     label: "TikTok",
     clientId: process.env.TIKTOK_CLIENT_KEY,
     clientSecret: process.env.TIKTOK_CLIENT_SECRET,
-    scope: "user.info.basic",
+    scope: "user.info.basic,user.info.profile",
     authorizeUrl: ({ clientId, redirectUri, state, scope }) =>
       `https://www.tiktok.com/v2/auth/authorize/?client_key=${clientId}&scope=${encodeURIComponent(
         scope,
