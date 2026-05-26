@@ -29,15 +29,24 @@ const integrations = [
   },
 ];
 
-export function BrandIntegrations() {
+export function BrandIntegrations({ connected = [] }: { connected?: string[] }) {
   const [ecomView, setEcomView] = useState<null | "choose" | "woo" | "shopify">(null);
   const [shop, setShop] = useState("");
+
+  const isConnected = (name: string) =>
+    name === "Instagram"
+      ? connected.includes("instagram")
+      : name === "TikTok"
+        ? connected.includes("tiktok")
+        : connected.includes("shopify") || connected.includes("woocommerce");
 
   return (
     <>
       <h2 className="mt-10 text-lg font-bold text-ink">Integraciones</h2>
       <div className="mt-4 grid gap-5 lg:grid-cols-3">
-        {integrations.map((it) => (
+        {integrations.map((it) => {
+          const conn = isConnected(it.name);
+          return (
           <div
             key={it.name}
             className="rounded-[14px] border border-line bg-surface p-5 shadow-[var(--shadow-soft)]"
@@ -52,23 +61,38 @@ export function BrandIntegrations() {
                 </span>
                 <div>
                   <p className="font-bold text-ink">{it.name}</p>
-                  <p className="text-xs text-dim">Sin conectar</p>
+                  <p className="text-xs text-dim">{conn ? "Conectado" : "Sin conectar"}</p>
                 </div>
               </div>
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-dim">
-                <span className="h-2 w-2 rounded-full bg-line-strong" />
-                No conectado
+              <span
+                className={
+                  "flex items-center gap-1.5 text-xs font-semibold " +
+                  (conn ? "text-success" : "text-dim")
+                }
+              >
+                <span
+                  className={
+                    "h-2 w-2 rounded-full " + (conn ? "bg-success" : "bg-line-strong")
+                  }
+                />
+                {conn ? "Conectado" : "No conectado"}
               </span>
             </div>
             <p className="mt-4 min-h-[40px] text-sm text-soft-ink">{it.desc}</p>
             <button
               onClick={() => it.ecommerce && setEcomView("choose")}
-              className="mt-4 w-full rounded-[10px] border border-line-strong py-2.5 text-sm font-semibold text-ink hover:border-accent hover:text-accent"
+              className={
+                "mt-4 w-full rounded-[10px] border py-2.5 text-sm font-semibold " +
+                (conn
+                  ? "border-success/40 text-success"
+                  : "border-line-strong text-ink hover:border-accent hover:text-accent")
+              }
             >
-              {it.cta}
+              {conn ? "Conectado ✓" : it.cta}
             </button>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {ecomView && (
