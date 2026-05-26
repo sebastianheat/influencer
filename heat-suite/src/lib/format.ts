@@ -13,6 +13,11 @@ export function money(n: number): string {
   }).format(n);
 }
 
+/* Chilean pesos: $20.000 */
+export function clp(n: number): string {
+  return "$" + Math.round(n).toLocaleString("es-CL");
+}
+
 /* Social counts in Montu style: 556, 12,8K, 979,1K, 1,8M */
 export function socialCount(n: number | null): string {
   if (n === null) return "—";

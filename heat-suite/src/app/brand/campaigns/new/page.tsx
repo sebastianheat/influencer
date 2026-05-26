@@ -8,14 +8,19 @@ import {
   ContentBlock,
   type ContentType,
 } from "@/components/campaign-wizard/ContentBlock";
-import { Field } from "@/components/ui";
+import {
+  CanjesPagos,
+  type BudgetMode,
+  type Canje,
+} from "@/components/campaign-wizard/CanjesPagos";
 import { cn } from "@/lib/cn";
+import { clp } from "@/lib/format";
 
 const STEP_TITLES = [
   "Campaña",
   "Objetivo de la campaña",
   "Contenido",
-  "Requisitos del creador",
+  "Canjes y pagos",
   "Resumen",
 ];
 
@@ -86,6 +91,9 @@ export default function NewCampaign() {
   );
   const [blocks, setBlocks] = useState<{ id: number; type: ContentType }[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [canje, setCanje] = useState<Canje>("none");
+  const [budgetMode, setBudgetMode] = useState<BudgetMode>("cotizar");
+  const [liquido, setLiquido] = useState(20000);
 
   const addBlock = (t: ContentType) => {
     setBlocks((b) => [...b, { id: ++blockSeq, type: t }]);
@@ -360,48 +368,14 @@ export default function NewCampaign() {
 
           {/* STEP 4 */}
           {step === 4 && (
-            <div className="rounded-[14px] border border-line bg-surface p-5 shadow-[var(--shadow-soft)]">
-              <h2 className="font-bold text-ink">Requisitos del creador</h2>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <Field label="Seguidores mínimos" type="number" placeholder="20000" />
-                <div>
-                  <p className="mb-1.5 text-[13px] font-semibold text-ink">Región</p>
-                  <select className={input}>
-                    <option>Todas las regiones</option>
-                    <option>Región Metropolitana</option>
-                    <option>Valparaíso</option>
-                    <option>Biobío</option>
-                    <option>Coquimbo</option>
-                  </select>
-                </div>
-                <div>
-                  <p className="mb-1.5 text-[13px] font-semibold text-ink">Género</p>
-                  <select className={input}>
-                    <option>Cualquiera</option>
-                    <option>Femenino</option>
-                    <option>Masculino</option>
-                  </select>
-                </div>
-                <Field label="Edad mínima" type="number" placeholder="18" />
-              </div>
-              <div className="mt-4">
-                <p className="mb-1.5 text-[13px] font-semibold text-ink">
-                  Nichos preferidos
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Salud", "Lifestyle", "Belleza", "Fitness y Bienestar", "Entretenimiento"].map(
-                    (n) => (
-                      <span
-                        key={n}
-                        className="rounded-full border border-line bg-soft px-3 py-1.5 text-[13px] font-semibold text-muted"
-                      >
-                        {n}
-                      </span>
-                    ),
-                  )}
-                </div>
-              </div>
-            </div>
+            <CanjesPagos
+              canje={canje}
+              setCanje={setCanje}
+              mode={budgetMode}
+              setMode={setBudgetMode}
+              liquido={liquido}
+              setLiquido={setLiquido}
+            />
           )}
 
           {/* STEP 5 */}
@@ -432,6 +406,22 @@ export default function NewCampaign() {
                         : "Evento",
                   ],
                   ["Formatos", blocks.map((b) => b.type).join(", ") || "—"],
+                  [
+                    "Canje",
+                    canje === "none"
+                      ? "Sin canje"
+                      : canje === "product"
+                        ? "Con canje"
+                        : "Giftcard",
+                  ],
+                  [
+                    "Presupuesto",
+                    budgetMode === "cotizar"
+                      ? "Cotizar"
+                      : budgetMode === "canje"
+                        ? "Solo canje"
+                        : clp(liquido) + " líquido",
+                  ],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between py-3 text-sm">
                     <dt className="text-soft-ink">{k}</dt>

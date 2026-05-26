@@ -75,36 +75,38 @@ export function ContentBlock({
             <input type="date" className={input} />
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <p className="text-sm font-bold text-ink">Menciones</p>
-              <div className="mt-2">
-                <Check
-                  checked={mention}
-                  onChange={() => setMention((m) => !m)}
-                  label="Quiero que me mencionen"
-                />
+          {type !== "Video de TikTok" && (
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-bold text-ink">Menciones</p>
+                <div className="mt-2">
+                  <Check
+                    checked={mention}
+                    onChange={() => setMention((m) => !m)}
+                    label="Quiero que me mencionen"
+                  />
+                </div>
+                <p className="mb-1.5 mt-3 text-[13px] font-semibold text-ink">
+                  Ingresa el nombre de la cuenta
+                </p>
+                <input placeholder="@nombredeusuario" className={input} />
               </div>
-              <p className="mb-1.5 mt-3 text-[13px] font-semibold text-ink">
-                Ingresa el nombre de la cuenta
-              </p>
-              <input placeholder="@nombredeusuario" className={input} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-ink">Colaboraciones</p>
-              <div className="mt-2">
-                <Check
-                  checked={collab}
-                  onChange={() => setCollab((c) => !c)}
-                  label="Subir de forma colaborativa"
-                />
+              <div>
+                <p className="text-sm font-bold text-ink">Colaboraciones</p>
+                <div className="mt-2">
+                  <Check
+                    checked={collab}
+                    onChange={() => setCollab((c) => !c)}
+                    label="Subir de forma colaborativa"
+                  />
+                </div>
+                <p className="mb-1.5 mt-3 text-[13px] font-semibold text-ink">
+                  Ingresa el nombre de la cuenta
+                </p>
+                <input placeholder="@nombredeusuario" className={input} />
               </div>
-              <p className="mb-1.5 mt-3 text-[13px] font-semibold text-ink">
-                Ingresa el nombre de la cuenta
-              </p>
-              <input placeholder="@nombredeusuario" className={input} />
             </div>
-          </div>
+          )}
 
           <div>
             <p className="mb-1.5 text-[13px] font-semibold text-ink">
