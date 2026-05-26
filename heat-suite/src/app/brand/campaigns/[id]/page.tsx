@@ -1,24 +1,45 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ApplicantsManager } from "@/components/ApplicantsManager";
-import {
-  Badge,
-  Button,
-  Card,
-  CampaignStatusBadge,
-  PlatformChips,
-  ProgressBar,
-} from "@/components/ui";
+import { Avatar } from "@/components/ui";
+import { CampaignPipeline } from "@/components/CampaignPipeline";
 import {
   applicationsForCampaign,
   campaigns,
   getCampaign,
   getInfluencer,
 } from "@/lib/data";
-import { compact, dateShort, daysLeft, money } from "@/lib/format";
+import { clp, compact, dateShort } from "@/lib/format";
 
 export function generateStaticParams() {
   return campaigns.map((c) => ({ id: c.id }));
+}
+
+function Stat({
+  icon,
+  label,
+  value,
+  unit,
+  sub,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  unit?: string;
+  sub: string;
+}) {
+  return (
+    <div className="rounded-[14px] border border-line bg-surface p-4 shadow-[var(--shadow-soft)]">
+      <p className="flex items-center gap-1.5 text-xs font-medium text-soft-ink">
+        <span>{icon}</span>
+        {label}
+      </p>
+      <p className="mt-2 text-xl font-extrabold text-ink">
+        {value}
+        {unit && <span className="ml-1 text-sm font-medium text-dim">{unit}</span>}
+      </p>
+      <p className="mt-0.5 text-xs text-dim">{sub}</p>
+    </div>
+  );
 }
 
 export default async function CampaignDetail({
@@ -30,140 +51,149 @@ export default async function CampaignDetail({
   const campaign = getCampaign(id);
   if (!campaign) notFound();
 
-  const rows = applicationsForCampaign(campaign.id)
-    .map((app) => ({ app, inf: getInfluencer(app.influencerId)! }))
-    .filter((r) => r.inf);
+  const apps = applicationsForCampaign(campaign.id);
+  const accepted = apps
+    .filter((a) => a.status === "accepted")
+    .map((a) => getInfluencer(a.influencerId))
+    .filter((x): x is NonNullable<typeof x> => Boolean(x));
+  const preselection = apps
+    .filter((a) => a.status === "pending" || a.status === "shortlisted")
+    .map((a) => getInfluencer(a.influencerId))
+    .filter((x): x is NonNullable<typeof x> => Boolean(x))
+    .map((i) => ({ id: i.id, name: i.name, handle: i.handle }));
+
+  const invest = accepted.reduce(
+    (s, i) => s + (apps.find((a) => a.influencerId === i.id)?.proposedRate ?? 0),
+    0,
+  );
+  const reach = accepted.reduce((s, i) => s + i.reach, 0);
+  const applicants = apps
+    .map((a) => getInfluencer(a.influencerId))
+    .filter((x): x is NonNullable<typeof x> => Boolean(x));
 
   return (
     <>
-      <Link
-        href="/brand/campaigns"
-        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-soft-ink hover:text-ink"
-      >
-        ← Volver a campañas
-      </Link>
+      <div className="mb-4 flex items-center justify-between">
+        <nav className="flex items-center gap-2 text-sm text-soft-ink">
+          <Link href="/brand/campaigns" className="hover:text-ink">
+            Campañas
+          </Link>
+          <span className="text-dim">›</span>
+          <span className="font-semibold text-accent">{campaign.title}</span>
+        </nav>
+        <button className="heat-gradient-blue rounded-[10px] px-4 py-2 text-sm font-semibold text-white">
+          Campaña ▾
+        </button>
+      </div>
 
-      {/* Hero */}
-      <div className={`relative overflow-hidden rounded-[18px] ${campaign.cover} p-6 sm:p-8`}>
-        <div className="absolute inset-0 bg-[radial-gradient(70%_100%_at_15%_0%,rgba(255,255,255,0.25),transparent)]" />
-        <div className="relative flex flex-wrap items-start justify-between gap-4 text-white">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-white/15 text-3xl backdrop-blur">
-              {campaign.brandLogo}
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-line bg-surface p-5 shadow-[var(--shadow-soft)]">
+        <div className="flex items-center gap-4">
+          <div className={`h-14 w-14 shrink-0 rounded-[12px] ${campaign.cover}`} />
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight text-ink">
+              {campaign.title}
+            </h1>
+            <p className="flex items-center gap-1.5 text-xs text-dim">
+              Creada el {dateShort(campaign.createdAt)} ·
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-ink text-[8px] font-bold text-white">
+                SY
+              </span>
+              por sebastián yáñez
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button className="rounded-[10px] border border-line px-4 py-2 text-sm font-semibold text-ink hover:border-accent hover:text-accent">
+            📄 Brief
+          </button>
+          <button className="cursor-not-allowed rounded-[10px] border border-line px-4 py-2 text-sm font-semibold text-dim">
+            📊 Reporte
+          </button>
+          <button className="cursor-not-allowed rounded-[10px] border border-line px-4 py-2 text-sm font-semibold text-dim">
+            ▶ Contenidos
+          </button>
+        </div>
+      </div>
+
+      {/* Two cards */}
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <Link
+          href={`/brand/campaigns/${campaign.id}/postulantes`}
+          className="flex items-center justify-between rounded-[14px] border border-line bg-surface p-5 shadow-[var(--shadow-soft)] transition-all hover:border-accent/40"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-accent-soft text-xl">
+              👥
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <CampaignStatusBadge status={campaign.status} />
-                <span className="text-sm text-white/80">{campaign.niche}</span>
-              </div>
-              <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight sm:text-3xl">
-                {campaign.title}
-              </h1>
-              <p className="text-sm text-white/80">{campaign.brand}</p>
+              <p className="font-bold text-ink">Postulantes</p>
+              <p className="text-sm text-soft-ink">
+                Revisa quién quiere participar y arma tu preselección.
+              </p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              className="!border-white/30 !bg-white/10 !text-white backdrop-blur hover:!bg-white/20"
-            >
-              Editar
-            </Button>
-            <Button className="bg-white !text-ink hover:bg-white/90">
-              Publicar oferta
-            </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {applicants.slice(0, 4).map((i) => (
+                <div key={i.id} className="rounded-full ring-2 ring-surface">
+                  <Avatar name={i.name} size={30} />
+                </div>
+              ))}
+            </div>
+            <span className="text-dim">›</span>
           </div>
+        </Link>
+
+        <div className="flex items-center justify-between rounded-[14px] bg-sidebar p-5 text-white">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-white/10 text-xl">
+              💻
+            </div>
+            <div>
+              <p className="flex items-center gap-2 font-bold">
+                Campaign planner
+                <span className="rounded-md bg-success px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  NUEVO
+                </span>
+              </p>
+              <p className="text-sm text-white/70">
+                Mezcla óptima de creadores según presupuesto y objetivo.
+              </p>
+            </div>
+          </div>
+          <span className="text-white/60">›</span>
         </div>
       </div>
 
-      {/* Stat strip */}
-      <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Card>
-          <p className="text-xs font-medium text-soft-ink">Presupuesto</p>
-          <p className="mt-1 text-xl font-extrabold text-ink">
-            {money(campaign.budget)}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-soft-ink">Por creador</p>
-          <p className="mt-1 text-xl font-extrabold text-ink">
-            {money(campaign.payPerCreator)}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-soft-ink">Plazas cubiertas</p>
-          <p className="mt-1 text-xl font-extrabold text-ink">
-            {campaign.filled}/{campaign.spots}
-          </p>
-          <div className="mt-2">
-            <ProgressBar value={campaign.filled} max={campaign.spots} />
-          </div>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium text-soft-ink">Cierre</p>
-          <p className="mt-1 text-xl font-extrabold text-ink">
-            {daysLeft(campaign.deadline)}d
-          </p>
-          <p className="text-xs text-dim">{dateShort(campaign.deadline)}</p>
-        </Card>
+      {/* Stats */}
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <Stat
+          icon="🤝"
+          label="Creadores contratados"
+          value={String(accepted.length)}
+          unit="creadores"
+          sub={`${accepted.length} en curso · 0 finalizadas`}
+        />
+        <Stat
+          icon="💳"
+          label="Inversión realizada"
+          value={clp(invest)}
+          sub={accepted.length ? "Pagos en garantía" : "Aún sin creadores contratados"}
+        />
+        <Stat icon="🎁" label="Canje entregado" value="$0" sub="Aún sin canjes entregados" />
+        <Stat icon="🎬" label="Piezas aprobadas" value="0" unit="piezas" sub="Aún sin piezas aprobadas" />
+        <Stat
+          icon="📈"
+          label="Reach orgánico"
+          value={compact(reach)}
+          sub={`${campaign.applicants > 0 ? campaign.payPerCreator / 100 : 0}% engagement`}
+        />
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        {/* Applicants */}
-        <div className="lg:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-ink">
-              Postulaciones ({campaign.applicants})
-            </h2>
-            <Button href="/brand/influencers" variant="secondary" size="sm">
-              🔍 Invitar creadores
-            </Button>
-          </div>
-          <ApplicantsManager initial={rows} />
-        </div>
-
-        {/* Sidebar: brief */}
-        <div className="space-y-5">
-          <Card>
-            <h3 className="font-bold text-ink">Brief</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              {campaign.brief}
-            </p>
-            <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
-              <span className="text-xs text-soft-ink">Plataformas</span>
-              <PlatformChips platforms={campaign.platforms} />
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="font-bold text-ink">Entregables</h3>
-            <ul className="mt-3 space-y-2">
-              {campaign.deliverables.map((d) => (
-                <li key={d} className="flex items-start gap-2 text-sm text-muted">
-                  <span className="mt-0.5 text-accent">✦</span>
-                  {d}
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card>
-            <h3 className="font-bold text-ink">Requisitos</h3>
-            <div className="mt-3 mb-3">
-              <Badge tone="neutral">
-                Mín. {compact(campaign.minFollowers)} seguidores
-              </Badge>
-            </div>
-            <ul className="space-y-2">
-              {campaign.requirements.map((r) => (
-                <li key={r} className="flex items-start gap-2 text-sm text-muted">
-                  <span className="mt-0.5 text-success">✓</span>
-                  {r}
-                </li>
-              ))}
-            </ul>
-          </Card>
-        </div>
+      {/* Pipeline */}
+      <div className="mt-6">
+        <CampaignPipeline campaignId={campaign.id} preselection={preselection} />
       </div>
     </>
   );

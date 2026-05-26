@@ -333,24 +333,158 @@ function Plan() {
   );
 }
 
-function Placeholder({ label, icon }: { label: string; icon: string }) {
+function Brands() {
+  const [open, setOpen] = useState(true);
   return (
     <>
-      <SectionTitle title={label} />
-      <div className="flex flex-col items-center justify-center rounded-[14px] border border-dashed border-line-strong bg-soft py-20 text-center">
-        <div className="text-4xl">{icon}</div>
-        <p className="mt-3 font-bold text-ink">Próximamente</p>
-        <p className="mt-1 text-sm text-soft-ink">
-          Esta sección estará disponible en breve.
-        </p>
+      <SectionTitle
+        title="Marcas"
+        action={
+          <button className="cursor-not-allowed rounded-[10px] bg-card px-4 py-2 text-sm font-semibold text-dim">
+            Nueva marca
+          </button>
+        }
+      />
+      <div className="rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)]">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center justify-between px-5 py-4 text-left font-bold text-ink"
+        >
+          Nueva Isapre — Cotiza tu plan de salud en 30 segundos
+          <span className="text-dim">{open ? "▴" : "▾"}</span>
+        </button>
+        {open && (
+          <div className="space-y-4 border-t border-line px-5 py-5">
+            <Field
+              label="Nombre de marca"
+              defaultValue="Nueva Isapre — Cotiza tu plan de salud en 30 segundos"
+            />
+            <div>
+              <p className="mb-1.5 text-[13px] font-semibold text-ink">
+                Descripción de marca
+              </p>
+              <textarea
+                rows={3}
+                defaultValue="Compara 1.782 planes de las 7 isapres del mercado. Sin alza 2026 en Nueva Masvida. Asesoría gratuita por WhatsApp."
+                className="w-full rounded-[10px] border border-line bg-surface p-3 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15"
+              />
+            </div>
+            <Field label="Sitio web de la marca" defaultValue="https://www.nuevaisapre.cl" />
+            <div className="relative w-fit">
+              <div className="flex h-20 w-20 items-center justify-center rounded-[14px] bg-accent-soft text-3xl">
+                🩺
+              </div>
+              <button className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm text-white">
+                ✎
+              </button>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <button className="flex items-center gap-1.5 text-sm font-semibold text-dim">
+                Deshacer cambios 🗑
+              </button>
+              <Button variant="secondary" size="sm">
+                Guardar cambios
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+    </>
+  );
+}
+
+function Users() {
+  const [modal, setModal] = useState(false);
+  return (
+    <>
+      <SectionTitle
+        title="Usuarios y permisos"
+        action={<Button onClick={() => setModal(true)}>Agregar usuario</Button>}
+      />
+      <div className="overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)]">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line bg-soft text-left text-soft-ink">
+              <th className="px-5 py-3 font-semibold">Usuario</th>
+              <th className="px-5 py-3 font-semibold">Email</th>
+              <th className="px-5 py-3 font-semibold">Rol y permisos</th>
+              <th className="w-12 px-5 py-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-5 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">
+                    SY
+                  </span>
+                  <span className="font-semibold text-ink">sebastián yáñez</span>
+                </div>
+              </td>
+              <td className="px-5 py-3 text-soft-ink">tu@email.com</td>
+              <td className="px-5 py-3">
+                <span className="rounded-md bg-success-bg px-2 py-1 text-xs font-bold text-success">
+                  Owner
+                </span>
+              </td>
+              <td className="px-5 py-3 text-right text-dim">⋯</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {modal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+          onClick={() => setModal(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-[16px] bg-surface p-6 shadow-[var(--shadow-card)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-extrabold text-ink">
+                Agregar usuarios al espacio de trabajo
+              </h2>
+              <button onClick={() => setModal(false)} className="text-soft-ink">
+                ✕
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-soft-ink">
+              Ingresa el correo del usuario que deseas agregar al espacio de
+              trabajo. Asegúrate que el correo no esté asociado a otro espacio de
+              trabajo.
+            </p>
+            <div className="mt-5 space-y-4">
+              <Field
+                label="Correo electrónico"
+                type="email"
+                placeholder="Ingresa el correo electrónico del usuario"
+              />
+              <div>
+                <p className="mb-1.5 text-[13px] font-semibold text-ink">Rol</p>
+                <select className="h-11 w-full rounded-[10px] border border-line bg-surface px-3.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15">
+                  <option>Selecciona el rol del usuario</option>
+                  <option>Administrador</option>
+                  <option>Editor</option>
+                  <option>Solo lectura</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button className="cursor-not-allowed rounded-[10px] bg-card px-5 py-2.5 text-sm font-semibold text-dim">
+                Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
 
 export default function Settings() {
   const [active, setActive] = useState("profile");
-  const current = sections.flatMap((s) => s.items).find((i) => i.key === active)!;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[230px_1fr]">
@@ -385,9 +519,8 @@ export default function Settings() {
         {active === "integrations" && <Integrations />}
         {active === "billing" && <Billing />}
         {active === "plan" && <Plan />}
-        {(active === "brands" || active === "users") && (
-          <Placeholder label={current.label} icon={current.icon} />
-        )}
+        {active === "brands" && <Brands />}
+        {active === "users" && <Users />}
       </div>
     </div>
   );
