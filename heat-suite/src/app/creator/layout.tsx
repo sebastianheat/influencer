@@ -1,4 +1,5 @@
 import { AppShell, type NavItem } from "@/components/AppShell";
+import { auth } from "@/auth";
 
 const nav: NavItem[] = [
   { label: "Inicio", href: "/creator", icon: "🏠" },
@@ -7,16 +8,19 @@ const nav: NavItem[] = [
   { label: "Perfil", href: "/creator/profile", icon: "👤" },
 ];
 
-export default function CreatorLayout({
+export default async function CreatorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  const name = session?.user?.name ?? "Creador";
   return (
     <AppShell
       nav={nav}
       roleLabel="Portal de Creador"
-      userName="Lucía Marín"
+      userName={name}
+      account={name}
       switchHref="/brand"
       switchLabel="Cambiar a marca"
     >
@@ -24,3 +28,4 @@ export default function CreatorLayout({
     </AppShell>
   );
 }
+

@@ -1,4 +1,5 @@
 import { AppShell, type NavItem } from "@/components/AppShell";
+import { auth } from "@/auth";
 
 const nav: NavItem[] = [
   { label: "Panel", href: "/admin", icon: "📊" },
@@ -6,16 +7,19 @@ const nav: NavItem[] = [
   { label: "Campañas", href: "/admin/campaigns", icon: "🎯" },
 ];
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  const name = session?.user?.name ?? "Equipo Heat";
   return (
     <AppShell
       nav={nav}
       roleLabel="Heat Suite · Admin"
-      userName="Equipo Heat"
+      userName={name}
+      account={name}
       switchHref="/brand"
       switchLabel="Ir a portal de marca"
     >
