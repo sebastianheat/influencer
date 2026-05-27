@@ -1,4 +1,5 @@
 import { AppShell, type NavGroup, type NavItem } from "@/components/AppShell";
+import { auth } from "@/auth";
 
 const groups: NavGroup[] = [
   {
@@ -24,18 +25,20 @@ const bottomNav: NavItem[] = [
   { label: "Configuración", href: "/brand/settings", icon: "⚙️" },
 ];
 
-export default function BrandLayout({
+export default async function BrandLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+  const name = session?.user?.name ?? "Marca";
   return (
     <AppShell
       groups={groups}
       bottomNav={bottomNav}
       roleLabel="Portal de Marca"
-      userName="Nueva Isapre"
-      account="Nueva Isapre — Co…"
+      userName={name}
+      account={name}
       switchHref="/creator"
       switchLabel="Cambiar a creador"
     >
