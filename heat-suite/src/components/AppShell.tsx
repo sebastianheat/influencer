@@ -34,8 +34,11 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [acctOpen, setAcctOpen] = useState(false);
 
   const sections: NavGroup[] = groups ?? [{ items: nav ?? [] }];
+  const flatItems = sections.flatMap((g) => g.items);
 
   const allHrefs = [
     ...sections.flatMap((g) => g.items.map((i) => i.href)),
@@ -154,22 +157,114 @@ export function AppShell({
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-[10px] border border-line bg-surface text-soft-ink hover:text-ink">
-              🔔
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger" />
-            </button>
-            <button className="flex items-center gap-2 rounded-[10px] border border-line bg-surface px-2 py-2 text-sm font-semibold text-ink hover:border-line-strong sm:px-3">
-              <Avatar name={account ?? userName} size={24} />
-              <span className="hidden max-w-[140px] truncate sm:block">
-                {account ?? userName}
-              </span>
-              <span className="text-dim">▾</span>
-            </button>
+            {/* Notifications */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setNotifOpen((v) => !v);
+                  setAcctOpen(false);
+                }}
+                className="relative flex h-10 w-10 items-center justify-center rounded-[10px] border border-line bg-surface text-soft-ink hover:text-ink"
+                aria-label="Notificaciones"
+              >
+                🔔
+                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger" />
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-card)]">
+                  <p className="border-b border-line px-4 py-3 text-sm font-bold text-ink">
+                    Notificaciones
+                  </p>
+                  <div className="divide-y divide-line">
+                    {[
+                      { t: "Nueva postulación recibida", s: "Hace 2 h" },
+                      { t: "Tu campaña fue publicada", s: "Hoy" },
+                      { t: "Conexión verificada", s: "Ayer" },
+                    ].map((n) => (
+                      <div key={n.t} className="px-4 py-3 hover:bg-soft">
+                        <p className="text-sm font-medium text-ink">{n.t}</p>
+                        <p className="text-xs text-dim">{n.s}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Account */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setAcctOpen((v) => !v);
+                  setNotifOpen(false);
+                }}
+                className="flex items-center gap-2 rounded-[10px] border border-line bg-surface px-2 py-2 text-sm font-semibold text-ink hover:border-line-strong sm:px-3"
+              >
+                <Avatar name={account ?? userName} size={24} />
+                <span className="hidden max-w-[140px] truncate sm:block">
+                  {account ?? userName}
+                </span>
+                <span className="text-dim">▾</span>
+              </button>
+              {acctOpen && (
+                <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-card)]">
+                  <div className="border-b border-line px-4 py-3">
+                    <p className="truncate text-sm font-bold text-ink">{userName}</p>
+                    <p className="text-xs text-dim">{roleLabel}</p>
+                  </div>
+                  <Link
+                    href={switchHref}
+                    onClick={() => setAcctOpen(false)}
+                    className="block px-4 py-2.5 text-sm font-medium text-ink hover:bg-soft"
+                  >
+                    🔄 {switchLabel}
+                  </Link>
+                  <form action={logout}>
+                    <button
+                      type="submit"
+                      className="block w-full px-4 py-2.5 text-left text-sm font-medium text-danger hover:bg-soft"
+                    >
+                      ↩︎ Cerrar sesión
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 px-5 py-7 lg:px-8">{children}</main>
+        {(notifOpen || acctOpen) && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setNotifOpen(false);
+              setAcctOpen(false);
+            }}
+          />
+        )}
+
+        <main className="flex-1 px-5 py-7 pb-24 lg:px-8 lg:pb-7">{children}</main>
       </div>
+
+      {/* Mobile bottom nav (app-style) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-line bg-surface/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">
+        {flatItems.slice(0, 5).map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors",
+                active ? "text-accent" : "text-soft-ink",
+              )}
+            >
+              <span className="text-lg leading-none">{item.icon}</span>
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
