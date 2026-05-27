@@ -1,6 +1,12 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+// Fallback placeholder so importing this module never throws when the key is
+// not yet configured; real API calls only run when a button is used.
+export const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY || "sk_test_placeholder_not_configured",
+);
+
+export const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY);
 
 export const PLAN_PRICE: Record<string, string | undefined> = {
   starter: process.env.STRIPE_PRICE_STARTER,
