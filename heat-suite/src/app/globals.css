@@ -60,11 +60,18 @@ html {
   background: var(--color-page);
 }
 
+html {
+  background: var(--color-page);
+  overflow-x: clip;
+}
+
 body {
   background: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 /* Reusable gradient surfaces matching the HEAT look */
