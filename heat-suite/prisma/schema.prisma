@@ -43,7 +43,7 @@ model Connection {
   id           String    @id @default(cuid())
   userId       String
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  provider     String // instagram | tiktok | shopify | woocommerce
+  provider     String // instagram | tiktok | shopify | woocommerce | stripe
   externalId   String?
   username     String?
   accessToken  String?
@@ -52,6 +52,11 @@ model Connection {
   scope        String?
   expiresAt    DateTime?
   createdAt    DateTime  @default(now())
+
+  // Stripe Connect (only for provider = "stripe")
+  chargesEnabled   Boolean @default(false)
+  payoutsEnabled   Boolean @default(false)
+  detailsSubmitted Boolean @default(false)
 
   @@unique([userId, provider])
 }
@@ -73,6 +78,20 @@ model Brand {
   plan               String    @default("none")
   subscriptionStatus String?
   currentPeriodEnd   DateTime?
+
+  // Balance (saldo a favor por reembolsos de ODT rechazadas, en CLP)
+  balance            Int       @default(0)
+  balanceTransactions BrandBalanceTransaction[]
+}
+
+model BrandBalanceTransaction {
+  id            String   @id @default(cuid())
+  brandId       String
+  brand         Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  amount        Int      // positivo = crédito; negativo = débito (uso del saldo)
+  reason        String   // "refund_odt" | "use_for_odt" | "manual_adjustment"
+  applicationId String?
+  createdAt     DateTime @default(now())
 }
 
 model CreatorProfile {
@@ -138,6 +157,25 @@ model Application {
   message      String            @default("")
   proposedRate Int               @default(0)
   appliedAt    DateTime          @default(now())
+
+  // ODT lifecycle (cuando status = ACCEPTED, esto se vuelve una ODT con su propio ciclo de pago)
+  // null | pending_payment | paid | content_submitted | released | rejected
+  odtStatus    String?
+  // Montos (CLP enteros) — capturados al crear la ODT para no depender de cambios futuros en proposedRate
+  brandAmount      Int? // lo que paga la marca = round(creatorAmount / (1 - commission))
+  creatorAmount    Int? // lo que recibe el creador (== proposedRate al momento de aceptar)
+  commissionAmount Int? // diferencia (oculta al creador y a la marca)
+  // Referencias Stripe
+  stripeCheckoutSessionId String?
+  stripePaymentIntentId   String?
+  stripeTransferId        String?
+  // Timestamps + contenido
+  paidAt              DateTime?
+  contentSubmittedAt  DateTime?
+  contentUrl          String?
+  releasedAt          DateTime?
+  rejectedAt          DateTime?
+  rejectionReason     String?
 
   @@unique([campaignId, creatorId])
 }

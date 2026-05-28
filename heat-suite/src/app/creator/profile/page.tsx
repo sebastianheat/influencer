@@ -7,17 +7,28 @@ import {
   StatCard,
 } from "@/components/ui";
 import { notFound } from "next/navigation";
-import { currentCreatorId, getConnectedProviders, getCreator } from "@/lib/queries";
+import {
+  currentCreatorId,
+  getConnectedProviders,
+  getCreator,
+  getCreatorStripeStatus,
+} from "@/lib/queries";
 import { disconnectProvider } from "@/lib/campaign-actions";
 import { compact, money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
-export default async function CreatorProfile() {
+export default async function CreatorProfile({
+  searchParams,
+}: {
+  searchParams: Promise<{ stripe?: string; error?: string }>;
+}) {
   const id = await currentCreatorId();
   const me = id ? await getCreator(id) : null;
   if (!me) notFound();
   const connected = await getConnectedProviders();
+  const stripe = await getCreatorStripeStatus();
+  const { stripe: stripeFlag, error } = await searchParams;
 
   return (
     <>
@@ -128,6 +139,74 @@ export default async function CreatorProfile() {
                   </div>
                 );
               })}
+            </div>
+          </Card>
+          <Card>
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-accent-soft text-base">
+                💸
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-bold text-ink">Pagos</h2>
+                <p className="mt-0.5 text-xs text-dim">
+                  Conectá tu cuenta para recibir el dinero de tus
+                  colaboraciones.
+                </p>
+              </div>
+            </div>
+
+            {stripeFlag === "connected" && (
+              <p className="mt-3 rounded-[8px] bg-success-bg px-3 py-2 text-xs font-semibold text-success">
+                ✓ Stripe vinculado.
+              </p>
+            )}
+            {error === "stripe_unconfigured" && (
+              <p className="mt-3 rounded-[8px] bg-warning-bg px-3 py-2 text-xs font-semibold text-warning">
+                Stripe aún no está configurado en el sitio.
+              </p>
+            )}
+            {error === "stripe_onboarding" && (
+              <p className="mt-3 rounded-[8px] bg-danger-bg px-3 py-2 text-xs font-semibold text-danger">
+                Hubo un problema generando el link. Intentalo de nuevo.
+              </p>
+            )}
+
+            <div className="mt-4">
+              {!stripe.exists && (
+                <a
+                  href="/api/stripe/connect/onboarding"
+                  className="inline-flex h-10 w-full items-center justify-center rounded-[10px] bg-ink px-4 text-sm font-semibold text-white hover:opacity-90"
+                >
+                  Vincular Stripe
+                </a>
+              )}
+              {stripe.exists && !stripe.detailsSubmitted && (
+                <>
+                  <p className="mb-2 text-xs font-semibold text-warning">
+                    Onboarding pendiente
+                  </p>
+                  <a
+                    href="/api/stripe/connect/onboarding"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-[10px] bg-ink px-4 text-sm font-semibold text-white hover:opacity-90"
+                  >
+                    Completar onboarding
+                  </a>
+                </>
+              )}
+              {stripe.exists && stripe.detailsSubmitted && (
+                <>
+                  <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-success">
+                    ✓ Conectado
+                    {stripe.payoutsEnabled ? " · Pagos habilitados" : " · Pagos pendientes"}
+                  </p>
+                  <a
+                    href="/api/stripe/connect/dashboard"
+                    className="inline-flex h-10 w-full items-center justify-center rounded-[10px] border border-line bg-surface px-4 text-sm font-semibold text-ink hover:border-accent hover:text-accent"
+                  >
+                    Gestionar en Stripe →
+                  </a>
+                </>
+              )}
             </div>
           </Card>
           <Card>

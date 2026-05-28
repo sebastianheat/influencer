@@ -168,6 +168,35 @@ export async function getConnectedProviders(): Promise<Set<string>> {
   return new Set(rows.map((r) => r.provider));
 }
 
+export type StripeConnectStatus = {
+  exists: boolean;
+  detailsSubmitted: boolean;
+  payoutsEnabled: boolean;
+  chargesEnabled: boolean;
+};
+
+export async function getCreatorStripeStatus(): Promise<StripeConnectStatus> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { exists: false, detailsSubmitted: false, payoutsEnabled: false, chargesEnabled: false };
+  }
+  const conn = await prisma.connection.findUnique({
+    where: { userId_provider: { userId: session.user.id, provider: "stripe" } },
+    select: {
+      externalId: true,
+      detailsSubmitted: true,
+      payoutsEnabled: true,
+      chargesEnabled: true,
+    },
+  });
+  return {
+    exists: Boolean(conn?.externalId),
+    detailsSubmitted: Boolean(conn?.detailsSubmitted),
+    payoutsEnabled: Boolean(conn?.payoutsEnabled),
+    chargesEnabled: Boolean(conn?.chargesEnabled),
+  };
+}
+
 export async function currentCreatorId(): Promise<string | null> {
   const session = await auth();
   if (!session?.user?.id) return null;
