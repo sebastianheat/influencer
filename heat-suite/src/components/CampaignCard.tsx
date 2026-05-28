@@ -20,7 +20,7 @@ export function CampaignCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--shadow-card)]"
+      className="group block w-full min-w-0 overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--shadow-card)]"
     >
       <div className={`relative h-24 ${campaign.cover}`}>
         <div className="absolute inset-0 bg-[radial-gradient(80%_120%_at_20%_0%,rgba(255,255,255,0.25),transparent)]" />

@@ -170,7 +170,7 @@ export default async function CreatorDashboard() {
 
       {/* Recommended + applications */}
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold text-ink">Campañas de la semana</h2>
             <Link href="/creator/campaigns" className="text-sm font-semibold text-accent hover:underline">
@@ -184,7 +184,7 @@ export default async function CreatorDashboard() {
           </div>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <h2 className="mb-3 text-lg font-bold text-ink">Mis postulaciones</h2>
           <Card padded={false}>
             <div className="divide-y divide-line">
