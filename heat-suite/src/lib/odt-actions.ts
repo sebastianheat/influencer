@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { stripe, stripeConfigured } from "@/lib/stripe";
 import {
-  COMMISSION_RATE,
   brandPriceFromCreatorRate,
   commissionFromBrandAmount,
 } from "@/lib/stripe-connect";
@@ -200,5 +199,3 @@ export async function rejectOdt(appId: string, reason: string) {
   revalidatePath(`/brand/campaigns/${app.campaignId}/postulantes`);
   return { ok: true };
 }
-
-export { COMMISSION_RATE };
