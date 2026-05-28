@@ -141,12 +141,43 @@ export async function approveOdt(appId: string) {
     return { error: "El creador aún no completó su onboarding de Stripe" };
   }
 
-  const transfer = await stripe.transfers.create({
+  // Si tenemos el PaymentIntent del cobro original, linkearlo (mejor reconciliación
+  // y evita problemas con balance pending vs available).
+  const transferParams: import("stripe").Stripe.TransferCreateParams = {
     amount: app.creatorAmount,
     currency: "clp",
     destination: stripeConn.externalId,
     metadata: { applicationId: app.id, campaignId: app.campaignId },
-  });
+  };
+  if (app.stripePaymentIntentId) {
+    try {
+      const pi = await stripe.paymentIntents.retrieve(app.stripePaymentIntentId);
+      if (pi.latest_charge) {
+        transferParams.source_transaction =
+          typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge.id;
+      }
+    } catch (e) {
+      console.warn("No pude leer latest_charge del PaymentIntent", e);
+    }
+  }
+
+  let transfer;
+  try {
+    transfer = await stripe.transfers.create(transferParams);
+  } catch (e) {
+    const err = e as { message?: string; type?: string; code?: string; raw?: { message?: string } };
+    console.error("Stripe transfer error", {
+      message: err?.message,
+      type: err?.type,
+      code: err?.code,
+      raw: err?.raw,
+      destination: stripeConn.externalId,
+      amount: app.creatorAmount,
+      currency: "clp",
+      hasSourceTransaction: Boolean(transferParams.source_transaction),
+    });
+    return { error: err?.message ?? "Error al transferir" };
+  }
 
   await prisma.application.update({
     where: { id: app.id },
