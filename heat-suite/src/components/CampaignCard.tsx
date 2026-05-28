@@ -33,40 +33,42 @@ export function CampaignCard({
       </div>
 
       <div className="px-4 pb-4 pt-7">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-soft-ink">
+        <div className="flex min-w-0 items-center gap-1.5 text-xs">
+          <span className="min-w-0 truncate font-semibold text-soft-ink">
             {campaign.brand}
           </span>
-          <span className="text-dim">·</span>
-          <span className="text-xs text-dim">{campaign.niche}</span>
+          <span className="shrink-0 text-dim">·</span>
+          <span className="min-w-0 truncate text-dim">{campaign.niche}</span>
         </div>
         <h3 className="mt-1 line-clamp-1 font-bold text-ink group-hover:text-accent">
           {campaign.title}
         </h3>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
           <PlatformChips platforms={campaign.platforms} />
-          <span className="text-sm font-extrabold text-ink">
+          <span className="shrink-0 whitespace-nowrap text-sm font-extrabold text-ink">
             {money(campaign.payPerCreator)}
             <span className="text-xs font-medium text-dim"> /creador</span>
           </span>
         </div>
 
         <div className="mt-4 space-y-1.5">
-          <div className="flex justify-between text-xs text-soft-ink">
-            <span>
+          <div className="flex min-w-0 items-center justify-between gap-2 text-xs text-soft-ink">
+            <span className="min-w-0 truncate">
               {campaign.filled}/{campaign.spots} plazas
             </span>
-            <span>{compact(campaign.applicants)} postulaciones</span>
+            <span className="shrink-0 whitespace-nowrap">
+              {compact(campaign.applicants)} postulaciones
+            </span>
           </div>
           <ProgressBar value={campaign.filled} max={campaign.spots} />
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
-          <span className="text-xs font-semibold text-soft-ink">
+        <div className="mt-4 flex min-w-0 items-center justify-between gap-2 border-t border-line pt-3">
+          <span className="min-w-0 truncate text-xs font-semibold text-soft-ink">
             {left > 0 ? `⏳ ${left} días restantes` : "Cerrada"}
           </span>
-          <span className="text-xs font-bold text-accent group-hover:underline">
+          <span className="shrink-0 whitespace-nowrap text-xs font-bold text-accent group-hover:underline">
             {ctaLabel} →
           </span>
         </div>
