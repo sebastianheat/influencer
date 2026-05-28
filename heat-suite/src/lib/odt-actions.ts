@@ -141,29 +141,49 @@ export async function approveOdt(appId: string) {
     return { error: "El creador aún no completó su onboarding de Stripe" };
   }
 
-  // Si tenemos el PaymentIntent del cobro original, linkearlo (mejor reconciliación
-  // y evita problemas con balance pending vs available).
-  const transferParams: import("stripe").Stripe.TransferCreateParams = {
-    amount: app.creatorAmount,
-    currency: "clp",
-    destination: stripeConn.externalId,
-    metadata: { applicationId: app.id, campaignId: app.campaignId },
-  };
-  if (app.stripePaymentIntentId) {
-    try {
-      const pi = await stripe.paymentIntents.retrieve(app.stripePaymentIntentId);
-      if (pi.latest_charge) {
-        transferParams.source_transaction =
-          typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge.id;
-      }
-    } catch (e) {
-      console.warn("No pude leer latest_charge del PaymentIntent", e);
+  // HEAT Suite LLC es US → su settlement currency es USD. Cuando la marca paga en
+  // CLP, Stripe convierte y nuestro balance crece en USD. Para transferir al
+  // creador tenemos que usar la misma currency que el balance_transaction (USD)
+  // y calcular el monto proporcional (creatorAmount / brandAmount del net USD).
+  if (!app.stripePaymentIntentId || !app.brandAmount) {
+    return { error: "Falta info del pago original" };
+  }
+
+  let transferAmount: number;
+  let transferCurrency: string;
+  let sourceTransaction: string | undefined;
+
+  try {
+    const pi = await stripe.paymentIntents.retrieve(app.stripePaymentIntentId, {
+      expand: ["latest_charge.balance_transaction"],
+    });
+    const charge = pi.latest_charge;
+    if (!charge || typeof charge === "string") {
+      return { error: "No se pudo leer el cobro original" };
     }
+    sourceTransaction = charge.id;
+    const bt = charge.balance_transaction;
+    if (!bt || typeof bt === "string") {
+      return { error: "No se pudo leer balance_transaction" };
+    }
+    transferCurrency = bt.currency; // usd (o lo que sea el settlement)
+    const ratio = app.creatorAmount / app.brandAmount; // ~0.85
+    transferAmount = Math.floor(bt.net * ratio);
+  } catch (e) {
+    const err = e as { message?: string };
+    console.error("Error leyendo charge/balance_transaction", err);
+    return { error: err?.message ?? "Error leyendo cobro original" };
   }
 
   let transfer;
   try {
-    transfer = await stripe.transfers.create(transferParams);
+    transfer = await stripe.transfers.create({
+      amount: transferAmount,
+      currency: transferCurrency,
+      destination: stripeConn.externalId,
+      source_transaction: sourceTransaction,
+      metadata: { applicationId: app.id, campaignId: app.campaignId },
+    });
   } catch (e) {
     const err = e as { message?: string; type?: string; code?: string; raw?: { message?: string } };
     console.error("Stripe transfer error", {
@@ -172,9 +192,9 @@ export async function approveOdt(appId: string) {
       code: err?.code,
       raw: err?.raw,
       destination: stripeConn.externalId,
-      amount: app.creatorAmount,
-      currency: "clp",
-      hasSourceTransaction: Boolean(transferParams.source_transaction),
+      amount: transferAmount,
+      currency: transferCurrency,
+      sourceTransaction,
     });
     return { error: err?.message ?? "Error al transferir" };
   }
