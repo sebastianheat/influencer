@@ -169,6 +169,96 @@ export async function getConnectedProviders(): Promise<Set<string>> {
   return new Set(rows.map((r) => r.provider));
 }
 
+export type ChatConvo = {
+  applicationId: string;
+  campaignTitle: string;
+  peerName: string;
+  peerHandle: string;
+  lastBody: string | null;
+  lastAt: string | null;
+  unread: boolean;
+  odtStatus: string | null;
+};
+
+export async function getBrandConversations(): Promise<ChatConvo[]> {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const brand = await prisma.brand.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!brand) return [];
+  const apps = await prisma.application.findMany({
+    where: {
+      status: "ACCEPTED",
+      campaign: { brandId: brand.id },
+    },
+    select: {
+      id: true,
+      odtStatus: true,
+      campaign: { select: { title: true } },
+      creator: { select: { handle: true, user: { select: { name: true } } } },
+      messages: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { body: true, createdAt: true, readByBrandAt: true },
+      },
+    },
+  });
+  return apps.map((a) => {
+    const last = a.messages[0];
+    return {
+      applicationId: a.id,
+      campaignTitle: a.campaign.title,
+      peerName: a.creator.user.name,
+      peerHandle: a.creator.handle,
+      lastBody: last?.body ?? null,
+      lastAt: last?.createdAt?.toISOString() ?? null,
+      unread: Boolean(last && !last.readByBrandAt),
+      odtStatus: a.odtStatus,
+    };
+  });
+}
+
+export async function getCreatorConversations(): Promise<ChatConvo[]> {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const creator = await prisma.creatorProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+  if (!creator) return [];
+  const apps = await prisma.application.findMany({
+    where: {
+      status: "ACCEPTED",
+      creatorId: creator.id,
+    },
+    select: {
+      id: true,
+      odtStatus: true,
+      campaign: { select: { title: true, brand: { select: { name: true, logo: true } } } },
+      messages: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { body: true, createdAt: true, readByCreatorAt: true },
+      },
+    },
+  });
+  return apps.map((a) => {
+    const last = a.messages[0];
+    return {
+      applicationId: a.id,
+      campaignTitle: a.campaign.title,
+      peerName: a.campaign.brand.name,
+      peerHandle: a.campaign.brand.logo ?? "🏷️",
+      lastBody: last?.body ?? null,
+      lastAt: last?.createdAt?.toISOString() ?? null,
+      unread: Boolean(last && !last.readByCreatorAt),
+      odtStatus: a.odtStatus,
+    };
+  });
+}
+
 export async function getBrandBalance(): Promise<number> {
   const session = await auth();
   if (!session?.user?.id) return 0;
