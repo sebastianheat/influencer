@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "./Logo";
+import { SupportChatWidget } from "./SupportChatWidget";
 import { Avatar } from "./ui";
 import { cn } from "@/lib/cn";
 import { logout } from "@/lib/auth-actions";
@@ -247,6 +248,9 @@ export function AppShell({
           {children}
         </main>
       </div>
+
+      {/* AI support chat (floating bottom-right, always available) */}
+      <SupportChatWidget />
 
       {/* Mobile bottom nav (app-style) */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-line bg-surface/95 px-2 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">

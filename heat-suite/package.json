@@ -16,6 +16,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.0",
     "@auth/prisma-adapter": "^2.11.2",
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^6.19.3",
