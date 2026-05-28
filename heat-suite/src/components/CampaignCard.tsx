@@ -20,7 +20,7 @@ export function CampaignCard({
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--shadow-card)]"
+      className="group block w-full min-w-0 overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)] transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[var(--shadow-card)]"
     >
       <div className={`relative h-24 ${campaign.cover}`}>
         <div className="absolute inset-0 bg-[radial-gradient(80%_120%_at_20%_0%,rgba(255,255,255,0.25),transparent)]" />
@@ -32,41 +32,41 @@ export function CampaignCard({
         </div>
       </div>
 
-      <div className="px-4 pb-4 pt-7">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-soft-ink">
-            {campaign.brand}
-          </span>
-          <span className="text-dim">·</span>
-          <span className="text-xs text-dim">{campaign.niche}</span>
-        </div>
+      <div className="min-w-0 px-4 pb-4 pt-7">
+        <p className="truncate text-xs">
+          <span className="font-semibold text-soft-ink">{campaign.brand}</span>
+          <span className="text-dim"> · </span>
+          <span className="text-dim">{campaign.niche}</span>
+        </p>
         <h3 className="mt-1 line-clamp-1 font-bold text-ink group-hover:text-accent">
           {campaign.title}
         </h3>
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
           <PlatformChips platforms={campaign.platforms} />
-          <span className="text-sm font-extrabold text-ink">
+          <span className="shrink-0 whitespace-nowrap text-sm font-extrabold text-ink">
             {money(campaign.payPerCreator)}
             <span className="text-xs font-medium text-dim"> /creador</span>
           </span>
         </div>
 
         <div className="mt-4 space-y-1.5">
-          <div className="flex justify-between text-xs text-soft-ink">
-            <span>
+          <div className="flex min-w-0 items-center justify-between gap-2 text-xs text-soft-ink">
+            <span className="min-w-0 truncate">
               {campaign.filled}/{campaign.spots} plazas
             </span>
-            <span>{compact(campaign.applicants)} postulaciones</span>
+            <span className="shrink-0 whitespace-nowrap">
+              {compact(campaign.applicants)} postulaciones
+            </span>
           </div>
           <ProgressBar value={campaign.filled} max={campaign.spots} />
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
-          <span className="text-xs font-semibold text-soft-ink">
+        <div className="mt-4 flex min-w-0 items-center justify-between gap-2 border-t border-line pt-3">
+          <span className="min-w-0 truncate text-xs font-semibold text-soft-ink">
             {left > 0 ? `⏳ ${left} días restantes` : "Cerrada"}
           </span>
-          <span className="text-xs font-bold text-accent group-hover:underline">
+          <span className="shrink-0 whitespace-nowrap text-xs font-bold text-accent group-hover:underline">
             {ctaLabel} →
           </span>
         </div>

@@ -243,7 +243,9 @@ export function AppShell({
           />
         )}
 
-        <main className="flex-1 px-5 py-7 pb-24 lg:px-8 lg:pb-7">{children}</main>
+        <main className="flex-1 px-4 py-6 pb-24 sm:px-5 sm:py-7 lg:px-8 lg:pb-7">
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom nav (app-style) */}
