@@ -27,9 +27,19 @@ export async function GET(req: NextRequest) {
     const url = await createOnboardingLink(accountId, origin);
     return NextResponse.redirect(url);
   } catch (e) {
-    console.error("Stripe Connect onboarding error", e);
+    const err = e as { message?: string; type?: string; code?: string };
+    console.error("Stripe Connect onboarding error", {
+      message: err?.message,
+      type: err?.type,
+      code: err?.code,
+      raw: e,
+    });
+    const msg = encodeURIComponent(err?.message ?? "unknown");
     return NextResponse.redirect(
-      new URL("/creator/profile?error=stripe_onboarding", origin),
+      new URL(
+        `/creator/profile?error=stripe_onboarding&detail=${msg}`,
+        origin,
+      ),
     );
   }
 }

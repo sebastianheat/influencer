@@ -30,7 +30,6 @@ export async function ensureCreatorStripeAccount(
     capabilities: {
       transfers: { requested: true },
     },
-    business_type: "individual",
     metadata: { userId },
   });
 
