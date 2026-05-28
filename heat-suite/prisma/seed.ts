@@ -62,7 +62,7 @@ async function main() {
   const brand = await prisma.brand.create({
     data: {
       userId: brandUser.id,
-      name: "Nueva Isapre — Cotiza tu plan de salud en 30 segundos",
+      name: "Nueva Isapre",
       website: "https://www.nuevaisapre.cl",
       description:
         "Compara 1.782 planes de las 7 isapres del mercado. Sin alza 2026 en Nueva Masvida. Asesoría gratuita por WhatsApp.",
