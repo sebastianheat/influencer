@@ -7,6 +7,7 @@ import type {
   Campaign,
   CampaignStatus,
   Influencer,
+  OdtStatus,
   Platform,
   TopPost,
 } from "./types";
@@ -168,6 +169,16 @@ export async function getConnectedProviders(): Promise<Set<string>> {
   return new Set(rows.map((r) => r.provider));
 }
 
+export async function getBrandBalance(): Promise<number> {
+  const session = await auth();
+  if (!session?.user?.id) return 0;
+  const brand = await prisma.brand.findUnique({
+    where: { userId: session.user.id },
+    select: { balance: true },
+  });
+  return brand?.balance ?? 0;
+}
+
 export type StripeConnectStatus = {
   exists: boolean;
   detailsSubmitted: boolean;
@@ -240,6 +251,19 @@ export async function getCampaign(id: string): Promise<Campaign | null> {
 
 export type AppRow = { app: Application; inf: Influencer };
 
+function mapOdtStatus(s: string | null): OdtStatus | null {
+  if (!s) return null;
+  if (
+    s === "pending_payment" ||
+    s === "paid" ||
+    s === "content_submitted" ||
+    s === "released" ||
+    s === "rejected"
+  )
+    return s;
+  return null;
+}
+
 export async function getApplicationsForCampaign(campaignId: string): Promise<AppRow[]> {
   const rows = await prisma.application.findMany({
     where: { campaignId },
@@ -255,6 +279,11 @@ export async function getApplicationsForCampaign(campaignId: string): Promise<Ap
       appliedAt: a.appliedAt.toISOString(),
       message: a.message,
       proposedRate: a.proposedRate,
+      odtStatus: mapOdtStatus(a.odtStatus),
+      brandAmount: a.brandAmount,
+      creatorAmount: a.creatorAmount,
+      contentUrl: a.contentUrl,
+      rejectionReason: a.rejectionReason,
     },
     inf: mapCreator(a.creator as CreatorRow, i + 1),
   }));
@@ -275,6 +304,11 @@ export async function getApplicationsForCreator(creatorId: string) {
       appliedAt: a.appliedAt.toISOString(),
       message: a.message,
       proposedRate: a.proposedRate,
+      odtStatus: mapOdtStatus(a.odtStatus),
+      brandAmount: a.brandAmount,
+      creatorAmount: a.creatorAmount,
+      contentUrl: a.contentUrl,
+      rejectionReason: a.rejectionReason,
     },
     campaign: mapCampaign(a.campaign),
   }));

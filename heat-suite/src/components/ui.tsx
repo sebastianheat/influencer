@@ -17,6 +17,7 @@ type ButtonProps = {
   type?: "button" | "submit";
   onClick?: () => void;
   full?: boolean;
+  disabled?: boolean;
 };
 
 const btnBase =
@@ -40,6 +41,7 @@ export function Button({
   type = "button",
   onClick,
   full,
+  disabled,
 }: ButtonProps) {
   const cls = cn(
     btnBase,
@@ -48,14 +50,14 @@ export function Button({
     full && "w-full",
     className,
   );
-  if (href)
+  if (href && !disabled)
     return (
       <Link href={href} className={cls}>
         {children}
       </Link>
     );
   return (
-    <button type={type} onClick={onClick} className={cls}>
+    <button type={type} onClick={onClick} disabled={disabled} className={cls}>
       {children}
     </button>
   );
