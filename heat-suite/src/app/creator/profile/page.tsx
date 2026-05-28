@@ -21,14 +21,18 @@ export const dynamic = "force-dynamic";
 export default async function CreatorProfile({
   searchParams,
 }: {
-  searchParams: Promise<{ stripe?: string; error?: string }>;
+  searchParams: Promise<{ stripe?: string; error?: string; detail?: string }>;
 }) {
   const id = await currentCreatorId();
   const me = id ? await getCreator(id) : null;
   if (!me) notFound();
   const connected = await getConnectedProviders();
   const stripe = await getCreatorStripeStatus();
-  const { stripe: stripeFlag, error } = await searchParams;
+  const { stripe: stripeFlag, error, detail } = (await searchParams) as {
+    stripe?: string;
+    error?: string;
+    detail?: string;
+  };
 
   return (
     <>
@@ -166,9 +170,14 @@ export default async function CreatorProfile({
               </p>
             )}
             {error === "stripe_onboarding" && (
-              <p className="mt-3 rounded-[8px] bg-danger-bg px-3 py-2 text-xs font-semibold text-danger">
-                Hubo un problema generando el link. Intentalo de nuevo.
-              </p>
+              <div className="mt-3 rounded-[8px] bg-danger-bg px-3 py-2 text-xs text-danger">
+                <p className="font-semibold">Hubo un problema generando el link.</p>
+                {detail && (
+                  <p className="mt-1 font-mono text-[11px] opacity-80">
+                    {decodeURIComponent(detail)}
+                  </p>
+                )}
+              </div>
             )}
 
             <div className="mt-4">
