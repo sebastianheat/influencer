@@ -29,7 +29,7 @@ export default async function BrandDashboard() {
       <p className="mt-1.5 text-soft-ink">Esto es lo que está pasando con tu marca.</p>
 
       <h2 className="mt-7 text-lg font-bold text-ink">Campañas activas</h2>
-      <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {active.slice(0, 2).map((c) => (
           <MontuCampaignCard key={c.id} campaign={c} />
         ))}
@@ -47,7 +47,7 @@ export default async function BrandDashboard() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <h2 className="mb-3 text-lg font-bold text-ink">Tareas pendientes</h2>
           <div className="overflow-hidden rounded-[14px] border border-line bg-surface shadow-[var(--shadow-soft)]">

@@ -114,7 +114,7 @@ export default async function CreatorDashboard() {
       )}
 
       {/* Stats */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           ["Postulaciones", String(myApps.length), "📨"],
           ["Colaboraciones", String(accepted.length), "🤝"],
@@ -169,7 +169,7 @@ export default async function CreatorDashboard() {
       </div>
 
       {/* Recommended + applications */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold text-ink">Campañas de la semana</h2>
@@ -177,7 +177,7 @@ export default async function CreatorDashboard() {
               Ver todas →
             </Link>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {open.map((c) => (
               <CampaignCard key={c.id} campaign={c} href={`/creator/campaigns/${c.id}`} ctaLabel="Postularme" />
             ))}
