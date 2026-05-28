@@ -5,6 +5,7 @@ const nav: NavItem[] = [
   { label: "Inicio", href: "/creator", icon: "🏠" },
   { label: "Explorar", href: "/creator/campaigns", icon: "🧭" },
   { label: "Collabs", href: "/creator/applications", icon: "🤝" },
+  { label: "Mensajes", href: "/creator/chat", icon: "💬" },
   { label: "Perfil", href: "/creator/profile", icon: "👤" },
 ];
 
