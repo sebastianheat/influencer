@@ -86,7 +86,7 @@ export default async function CreatorProfile({
             </label>
             <Field label="Ubicación" defaultValue={me.location} />
             <Field
-              label="Tarifa base (€)"
+              label="Tarifa base (CLP)"
               type="number"
               defaultValue={String(me.priceFrom)}
             />

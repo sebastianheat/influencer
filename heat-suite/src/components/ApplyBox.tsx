@@ -58,7 +58,7 @@ export function ApplyBox({
         </label>
         <label className="block">
           <span className="mb-1.5 block text-[13px] font-semibold text-ink">
-            Tu tarifa propuesta (€)
+            Tu tarifa propuesta (CLP)
           </span>
           <input
             type="number"
