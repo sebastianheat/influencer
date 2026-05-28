@@ -5,6 +5,71 @@ import { Button, Field } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { startCheckout, openBillingPortal } from "@/lib/billing-actions";
 
+function BillingBanner({
+  status,
+  onDismiss,
+}: {
+  status: "success" | "cancel" | "unconfigured";
+  onDismiss: () => void;
+}) {
+  const config = {
+    success: {
+      bg: "bg-success-bg",
+      border: "border-success/30",
+      icon: "✓",
+      iconBg: "bg-success text-white",
+      title: "Suscripción activada",
+      text: "Tu plan ya está activo. El cargo aparecerá en tu método de pago.",
+    },
+    cancel: {
+      bg: "bg-soft",
+      border: "border-line",
+      icon: "ⓘ",
+      iconBg: "bg-soft-ink text-white",
+      title: "Pago cancelado",
+      text: "Cancelaste el proceso. Podés volver a intentarlo cuando quieras.",
+    },
+    unconfigured: {
+      bg: "bg-warning-bg",
+      border: "border-warning/30",
+      icon: "!",
+      iconBg: "bg-warning text-white",
+      title: "Plan no configurado",
+      text: "Este plan aún no está disponible. Contactá soporte.",
+    },
+  }[status];
+
+  return (
+    <div
+      className={cn(
+        "mb-5 flex items-start gap-3 rounded-[12px] border px-4 py-3",
+        config.bg,
+        config.border,
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+          config.iconBg,
+        )}
+      >
+        {config.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-bold text-ink">{config.title}</p>
+        <p className="mt-0.5 text-xs text-muted">{config.text}</p>
+      </div>
+      <button
+        onClick={onDismiss}
+        className="shrink-0 text-lg leading-none text-dim hover:text-ink"
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
 const sections = [
   {
     label: "General",
@@ -509,8 +574,21 @@ function Users() {
   );
 }
 
-export function SettingsClient({ currentPlan }: { currentPlan: string }) {
-  const [active, setActive] = useState("profile");
+export function SettingsClient({
+  currentPlan,
+  billingStatus,
+}: {
+  currentPlan: string;
+  billingStatus?: string;
+}) {
+  const isBillingEvent =
+    billingStatus === "success" ||
+    billingStatus === "cancel" ||
+    billingStatus === "unconfigured";
+  const [active, setActive] = useState(isBillingEvent ? "plan" : "profile");
+  const [bannerStatus, setBannerStatus] = useState<
+    "success" | "cancel" | "unconfigured" | null
+  >(isBillingEvent ? (billingStatus as "success" | "cancel" | "unconfigured") : null);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[230px_1fr]">
@@ -540,6 +618,12 @@ export function SettingsClient({ currentPlan }: { currentPlan: string }) {
       </nav>
 
       <div>
+        {bannerStatus && (
+          <BillingBanner
+            status={bannerStatus}
+            onDismiss={() => setBannerStatus(null)}
+          />
+        )}
         {active === "profile" && <Profile />}
         {active === "notifications" && <Notifications />}
         {active === "integrations" && <Integrations />}
