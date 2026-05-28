@@ -4,7 +4,11 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ billing?: string }>;
+}) {
   const session = await auth();
   let currentPlan = "none";
   if (session?.user?.id) {
@@ -14,5 +18,6 @@ export default async function SettingsPage() {
     });
     currentPlan = brand?.plan ?? "none";
   }
-  return <SettingsClient currentPlan={currentPlan} />;
+  const { billing } = await searchParams;
+  return <SettingsClient currentPlan={currentPlan} billingStatus={billing} />;
 }
