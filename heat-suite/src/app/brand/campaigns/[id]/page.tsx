@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar } from "@/components/ui";
-import { CampaignPipeline } from "@/components/CampaignPipeline";
+import {
+  CampaignPipeline,
+  type PipelineMember,
+  type PipelineStage,
+} from "@/components/CampaignPipeline";
 import { CampaignPlannerCard } from "@/components/CampaignPlannerCard";
 import { getApplicationsForCampaign, getCampaign } from "@/lib/queries";
 import { clp, compact, dateShort } from "@/lib/format";
+import type { OdtStatus } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -47,13 +52,77 @@ export default async function CampaignDetail({
 
   const rows = await getApplicationsForCampaign(campaign.id);
   const accepted = rows.filter((r) => r.app.status === "accepted").map((r) => r.inf);
-  const preselection = rows
-    .filter((r) => r.app.status === "pending" || r.app.status === "shortlisted")
-    .map((r) => ({ id: r.inf.id, name: r.inf.name, handle: r.inf.handle }));
 
+  const toMember = (r: (typeof rows)[number]): PipelineMember => ({
+    id: r.inf.id,
+    name: r.inf.name,
+    handle: r.inf.handle,
+  });
+
+  const byOdt = (status: OdtStatus | null) =>
+    rows
+      .filter((r) => r.app.status === "accepted" && r.app.odtStatus === status)
+      .map(toMember);
+
+  const stages: PipelineStage[] = [
+    {
+      key: "preselection",
+      label: "Pre selección",
+      icon: "👥",
+      tone: "neutral",
+      members: rows
+        .filter((r) => r.app.status === "pending" || r.app.status === "shortlisted")
+        .map(toMember),
+    },
+    {
+      key: "pending_payment",
+      label: "Pendiente de pago",
+      icon: "💳",
+      tone: "warning",
+      members: byOdt("pending_payment"),
+    },
+    {
+      key: "paid",
+      label: "Generando contenido",
+      icon: "🎬",
+      tone: "accent",
+      members: byOdt("paid"),
+    },
+    {
+      key: "content_submitted",
+      label: "En evaluación",
+      icon: "📋",
+      tone: "accent",
+      members: byOdt("content_submitted"),
+    },
+    {
+      key: "released",
+      label: "Finalizadas · pagadas",
+      icon: "✓",
+      tone: "success",
+      members: byOdt("released"),
+    },
+    {
+      key: "rejected",
+      label: "Rechazadas",
+      icon: "↩︎",
+      tone: "danger",
+      members: rows
+        .filter((r) => r.app.odtStatus === "rejected")
+        .map(toMember),
+    },
+  ];
+
+  // Inversión = todo lo pagado por ODT (incluye paid, content_submitted, released).
+  // Las rechazadas no cuentan (volvieron a saldo) y las pending_payment todavía no se pagaron.
+  const PAID_ODT_STATUSES = ["paid", "content_submitted", "released"];
   const invest = rows
-    .filter((r) => r.app.status === "accepted")
-    .reduce((s, r) => s + r.app.proposedRate, 0);
+    .filter((r) => r.app.odtStatus && PAID_ODT_STATUSES.includes(r.app.odtStatus))
+    .reduce((s, r) => s + (r.app.brandAmount ?? r.app.proposedRate), 0);
+  const releasedCount = rows.filter((r) => r.app.odtStatus === "released").length;
+  const inProgressCount = rows.filter(
+    (r) => r.app.status === "accepted" && r.app.odtStatus && r.app.odtStatus !== "released" && r.app.odtStatus !== "rejected",
+  ).length;
   const reach = accepted.reduce((s, i) => s + i.reach, 0);
   const applicants = rows.map((r) => r.inf);
 
@@ -141,16 +210,22 @@ export default async function CampaignDetail({
           label="Creadores contratados"
           value={String(accepted.length)}
           unit="creadores"
-          sub={`${accepted.length} en curso · 0 finalizadas`}
+          sub={`${inProgressCount} en curso · ${releasedCount} finalizadas`}
         />
         <Stat
           icon="💳"
           label="Inversión realizada"
           value={clp(invest)}
-          sub={accepted.length ? "Pagos en garantía" : "Aún sin creadores contratados"}
+          sub={invest > 0 ? "Pagos en garantía + liberados" : "Aún sin pagos"}
         />
         <Stat icon="🎁" label="Canje entregado" value="$0" sub="Aún sin canjes entregados" />
-        <Stat icon="🎬" label="Piezas aprobadas" value="0" unit="piezas" sub="Aún sin piezas aprobadas" />
+        <Stat
+          icon="🎬"
+          label="Piezas aprobadas"
+          value={String(releasedCount)}
+          unit={releasedCount === 1 ? "pieza" : "piezas"}
+          sub={releasedCount > 0 ? "Contenidos liberados" : "Aún sin piezas aprobadas"}
+        />
         <Stat
           icon="📈"
           label="Reach orgánico"
@@ -161,7 +236,7 @@ export default async function CampaignDetail({
 
       {/* Pipeline */}
       <div className="mt-6">
-        <CampaignPipeline campaignId={campaign.id} preselection={preselection} />
+        <CampaignPipeline campaignId={campaign.id} stages={stages} />
       </div>
     </>
   );
