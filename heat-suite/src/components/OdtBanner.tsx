@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 
-type Status = "paid" | "cancel" | "error" | "invalid_state" | "stripe_unconfigured";
+type Status =
+  | "paid"
+  | "cancel"
+  | "error"
+  | "invalid_state"
+  | "stripe_unconfigured"
+  | "approved"
+  | "rejected_refunded";
 
 const CONFIG: Record<
   Status,
@@ -16,6 +23,22 @@ const CONFIG: Record<
     iconBg: "bg-success text-white",
     title: "Pago de ODT recibido",
     text: "La transacción fue procesada. El creador ya puede entregar su contenido.",
+  },
+  approved: {
+    bg: "bg-success-bg",
+    border: "border-success/30",
+    icon: "✓",
+    iconBg: "bg-success text-white",
+    title: "Contenido aprobado y pago liberado",
+    text: "El dinero fue transferido a la cuenta Stripe del creador.",
+  },
+  rejected_refunded: {
+    bg: "bg-soft",
+    border: "border-line",
+    icon: "↩︎",
+    iconBg: "bg-soft-ink text-white",
+    title: "ODT rechazada",
+    text: "El monto fue acreditado a tu saldo Heat Suite. Lo podés usar en tu próxima ODT.",
   },
   cancel: {
     bg: "bg-soft",

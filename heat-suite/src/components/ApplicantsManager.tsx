@@ -19,6 +19,7 @@ import {
   payOdt,
   rejectOdt,
 } from "@/lib/odt-actions";
+import { OdtBanner } from "./OdtBanner";
 
 type Row = { app: Application; inf: Influencer };
 
@@ -44,6 +45,7 @@ export function ApplicantsManager({ initial }: { initial: Row[] }) {
     "all",
   );
   const [busy, setBusy] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ status: string; n: number } | null>(null);
   const [, startTransition] = useTransition();
 
   const patch = (appId: string, p: Partial<Application>) => {
@@ -71,16 +73,20 @@ export function ApplicantsManager({ initial }: { initial: Row[] }) {
     setBusy(appId);
     const r = await rejectOdt(appId, reason);
     setBusy(null);
-    if (r?.ok) patch(appId, { odtStatus: "rejected", rejectionReason: reason });
-    else alert("Error: " + (r?.error ?? "desconocido"));
+    if (r?.ok) {
+      patch(appId, { odtStatus: "rejected", rejectionReason: reason });
+      setFeedback((f) => ({ status: "rejected_refunded", n: (f?.n ?? 0) + 1 }));
+    } else alert("Error: " + (r?.error ?? "desconocido"));
   };
 
   const approve = async (appId: string) => {
     setBusy(appId);
     const r = await approveOdt(appId);
     setBusy(null);
-    if (r?.ok) patch(appId, { odtStatus: "released" });
-    else alert("Error: " + (r?.error ?? "desconocido"));
+    if (r?.ok) {
+      patch(appId, { odtStatus: "released" });
+      setFeedback((f) => ({ status: "approved", n: (f?.n ?? 0) + 1 }));
+    } else alert("Error: " + (r?.error ?? "desconocido"));
   };
 
   const tabs = [
@@ -94,6 +100,7 @@ export function ApplicantsManager({ initial }: { initial: Row[] }) {
 
   return (
     <div>
+      {feedback && <OdtBanner key={`${feedback.status}-${feedback.n}`} status={feedback.status} />}
       <div className="mb-4 flex flex-wrap gap-2">
         {tabs.map((t) => {
           const count =
