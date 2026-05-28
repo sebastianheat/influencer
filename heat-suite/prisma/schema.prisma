@@ -66,6 +66,13 @@ model Brand {
   logo        String?    @default("🩺")
   campaigns   Campaign[]
   createdAt   DateTime   @default(now())
+
+  // Stripe subscription
+  stripeCustomerId   String?
+  subscriptionId     String?
+  plan               String    @default("none")
+  subscriptionStatus String?
+  currentPeriodEnd   DateTime?
 }
 
 model CreatorProfile {
