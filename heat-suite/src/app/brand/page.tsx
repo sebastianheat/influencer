@@ -2,7 +2,12 @@ import Link from "next/link";
 import { MontuCampaignCard } from "@/components/MontuCampaignCard";
 import { BrandIntegrations } from "@/components/BrandIntegrations";
 import { auth } from "@/auth";
-import { getCampaigns, getConnectedProviders } from "@/lib/queries";
+import {
+  getBrandBalance,
+  getCampaigns,
+  getConnectedProviders,
+} from "@/lib/queries";
+import { money } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +25,7 @@ export default async function BrandDashboard() {
   const campaigns = await getCampaigns();
   const active = campaigns.filter((c) => c.status === "active" || c.status === "review");
   const connected = [...(await getConnectedProviders())];
+  const balance = await getBrandBalance();
 
   return (
     <>
@@ -27,6 +33,23 @@ export default async function BrandDashboard() {
         Hola, {firstName} 👋
       </h1>
       <p className="mt-1.5 text-soft-ink">Esto es lo que está pasando con tu marca.</p>
+
+      {balance > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-4 rounded-[14px] border border-line bg-surface p-4 shadow-[var(--shadow-soft)]">
+          <span className="flex h-11 w-11 items-center justify-center rounded-[12px] bg-accent-soft text-xl">
+            💰
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-dim">
+              Saldo Heat Suite
+            </p>
+            <p className="text-xl font-extrabold text-ink">{money(balance)}</p>
+          </div>
+          <p className="text-xs text-soft-ink">
+            Generado por reembolsos de ODT rechazadas. Usalo en tu próxima ODT.
+          </p>
+        </div>
+      )}
 
       <h2 className="mt-7 text-lg font-bold text-ink">Campañas activas</h2>
       <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

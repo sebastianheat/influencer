@@ -77,6 +77,13 @@ export interface Campaign {
   tag: string; // "Orgánico", "Pagado", "Afiliación"
 }
 
+export type OdtStatus =
+  | "pending_payment"
+  | "paid"
+  | "content_submitted"
+  | "released"
+  | "rejected";
+
 export interface Application {
   id: string;
   campaignId: string;
@@ -85,6 +92,11 @@ export interface Application {
   appliedAt: string;
   message: string;
   proposedRate: number;
+  odtStatus?: OdtStatus | null;
+  brandAmount?: number | null;
+  creatorAmount?: number | null;
+  contentUrl?: string | null;
+  rejectionReason?: string | null;
 }
 
 export interface PlatformUser {

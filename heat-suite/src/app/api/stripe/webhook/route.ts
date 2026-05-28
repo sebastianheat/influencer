@@ -37,11 +37,34 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "checkout.session.completed": {
         const s = event.data.object as Stripe.Checkout.Session;
+        // Subscription (planes Heat Suite)
         if (s.subscription) {
           const sub = await stripe.subscriptions.retrieve(
             s.subscription as string,
           );
           await syncSubscription(sub);
+        }
+        // ODT one-time payment
+        const meta = s.metadata ?? {};
+        if (
+          s.mode === "payment" &&
+          meta.type === "odt" &&
+          typeof meta.applicationId === "string"
+        ) {
+          await prisma.application.updateMany({
+            where: {
+              id: meta.applicationId,
+              odtStatus: "pending_payment",
+            },
+            data: {
+              odtStatus: "paid",
+              paidAt: new Date(),
+              stripePaymentIntentId:
+                typeof s.payment_intent === "string"
+                  ? s.payment_intent
+                  : (s.payment_intent?.id ?? null),
+            },
+          });
         }
         break;
       }
