@@ -39,9 +39,9 @@ export const providers: Record<ProviderId, Provider> = {
     label: "Instagram",
     clientId: process.env.INSTAGRAM_CLIENT_ID,
     clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-    scope: "user_profile,user_media",
+    scope: "instagram_business_basic",
     authorizeUrl: ({ clientId, redirectUri, state, scope }) =>
-      `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      `https://www.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
         redirectUri,
       )}&scope=${encodeURIComponent(scope)}&response_type=code&state=${state}`,
     exchangeToken: async ({ clientId, clientSecret, code, redirectUri }) => {
@@ -58,7 +58,41 @@ export const providers: Record<ProviderId, Provider> = {
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error_message || "Instagram token error");
-      return { accessToken: j.access_token, externalId: String(j.user_id ?? "") };
+
+      const shortToken = j.access_token as string;
+      const userId = String(j.user_id ?? "");
+
+      // Exchange short-lived (1h) → long-lived (60d) token.
+      let accessToken = shortToken;
+      let expiresIn: number | undefined;
+      try {
+        const long = await fetch(
+          `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${encodeURIComponent(
+            clientSecret,
+          )}&access_token=${encodeURIComponent(shortToken)}`,
+        );
+        const lj = await long.json();
+        if (long.ok && lj.access_token) {
+          accessToken = lj.access_token;
+          expiresIn = lj.expires_in;
+        }
+      } catch {
+        // fall back to short-lived token if exchange fails
+      }
+
+      // Best-effort username fetch.
+      let username: string | undefined;
+      try {
+        const u = await fetch(
+          `https://graph.instagram.com/v23.0/me?fields=username&access_token=${encodeURIComponent(accessToken)}`,
+        );
+        const uj = await u.json();
+        username = uj?.username;
+      } catch {
+        // ignore
+      }
+
+      return { accessToken, externalId: userId, username, expiresIn };
     },
   },
 
