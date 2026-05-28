@@ -44,7 +44,7 @@ export default async function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-bold text-ink">Volumen de transacciones (GMV)</h2>
-              <p className="text-sm text-soft-ink">Últimos 12 meses · en miles de €</p>
+              <p className="text-sm text-soft-ink">Últimos 12 meses · en miles de CLP</p>
             </div>
             <Badge tone="success">▲ 18,4%</Badge>
           </div>

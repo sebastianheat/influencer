@@ -4,7 +4,7 @@ import { Logo } from "@/components/Logo";
 const stats = [
   { value: "12K+", label: "Creadores verificados" },
   { value: "850+", label: "Marcas activas" },
-  { value: "€4.8M", label: "Pagado a creadores" },
+  { value: "$4.8M", label: "Pagado a creadores" },
   { value: "98%", label: "Campañas completadas" },
 ];
 
