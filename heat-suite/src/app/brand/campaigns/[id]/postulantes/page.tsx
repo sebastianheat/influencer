@@ -1,20 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ApplicantsManager } from "@/components/ApplicantsManager";
+import { OdtBanner } from "@/components/OdtBanner";
 import { getApplicationsForCampaign, getCampaign } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function Postulantes({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ odt?: string }>;
 }) {
   const { id } = await params;
   const campaign = await getCampaign(id);
   if (!campaign) notFound();
 
   const rows = await getApplicationsForCampaign(campaign.id);
+  const { odt } = await searchParams;
 
   return (
     <>
@@ -34,6 +38,8 @@ export default async function Postulantes({
       <p className="mb-6 mt-1 text-sm text-soft-ink">
         Revisa quién quiere participar y arma tu preselección.
       </p>
+
+      {odt && <OdtBanner status={odt} />}
 
       <ApplicantsManager initial={rows} />
     </>
