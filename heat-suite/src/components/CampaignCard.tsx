@@ -32,14 +32,12 @@ export function CampaignCard({
         </div>
       </div>
 
-      <div className="px-4 pb-4 pt-7">
-        <div className="flex min-w-0 items-center gap-1.5 text-xs">
-          <span className="min-w-0 truncate font-semibold text-soft-ink">
-            {campaign.brand}
-          </span>
-          <span className="shrink-0 text-dim">·</span>
-          <span className="min-w-0 truncate text-dim">{campaign.niche}</span>
-        </div>
+      <div className="min-w-0 px-4 pb-4 pt-7">
+        <p className="truncate text-xs">
+          <span className="font-semibold text-soft-ink">{campaign.brand}</span>
+          <span className="text-dim"> · </span>
+          <span className="text-dim">{campaign.niche}</span>
+        </p>
         <h3 className="mt-1 line-clamp-1 font-bold text-ink group-hover:text-accent">
           {campaign.title}
         </h3>
